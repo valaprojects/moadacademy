@@ -5,6 +5,7 @@ import {
   AudioWaveform,
   BookOpen,
   Camera,
+  ChevronDown,
   ChevronLeft,
   CircleHelp,
   GraduationCap,
@@ -19,7 +20,6 @@ import {
   ShoppingBag,
   Sparkles,
   Sun,
-  UserRound,
   Users,
   Video,
   X,
@@ -31,6 +31,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -55,37 +56,47 @@ export function useShop() {
 
 const navItems = [
   { href: "/", label: "خانه", icon: Home },
-  { href: "/samples", label: "سمپل‌پک‌ها", icon: AudioWaveform },
+  { href: "/shop", label: "محصولات", icon: AudioWaveform },
   { href: "/courses", label: "دوره‌ها", icon: GraduationCap },
   { href: "/blog", label: "مجله", icon: BookOpen },
+  { href: "/consultation", label: "مشاوره", icon: MessageCircle },
 ];
 
 const sideItems = [
-  { href: "/samples?category=drums", label: "درام و پرکاشن", icon: AudioWaveform },
-  { href: "/samples?category=melody", label: "ملودی و ساز", icon: Music2 },
-  { href: "/samples?category=vocal", label: "وکال و چاپ", icon: Headphones },
-  { href: "/samples?category=preset", label: "پریست و بانک صدا", icon: Sparkles },
+  { href: "/shop?category=drums", label: "درام و پرکاشن", icon: AudioWaveform },
+  { href: "/shop?category=melody", label: "ملودی و ساز", icon: Music2 },
+  { href: "/shop?category=vocal", label: "وکال و چاپ", icon: Headphones },
+  { href: "/shop?category=preset", label: "پریست و بانک صدا", icon: Sparkles },
 ];
 
 function Brand() {
   return (
-    <Link href="/" className="group flex items-center gap-3" aria-label="Moad Academy">
+    <Link href="/" className="group flex items-center gap-3" aria-label="موآد استودیو">
       <span className="relative grid size-11 place-items-center overflow-hidden rounded-2xl bg-[var(--ink)] text-[var(--acid)] shadow-[0_10px_30px_rgba(15,18,13,.15)]">
         <AudioWaveform className="size-6 transition-transform group-hover:scale-110" strokeWidth={2.4} />
         <span className="absolute inset-x-2 bottom-1 h-px bg-[var(--acid)]/40" />
       </span>
       <span className="leading-none">
-        <strong className="block text-[17px] font-black tracking-[-.04em] text-[var(--foreground)]">MOAD</strong>
-        <span className="mt-1 block text-[9px] font-bold tracking-[.2em] text-[var(--muted)]">ACADEMY</span>
+        <strong className="block text-[15px] font-black text-[var(--foreground)]">موآد</strong>
+        <span className="mt-1 block text-[9px] font-bold text-[var(--muted)]">استودیو موسیقی</span>
       </span>
     </Link>
   );
 }
 
-function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => void; onSearch?: () => void; theme?: "light" | "dark"; onTheme?: () => void }) {
   return (
-    <div className="flex h-full flex-col p-5">
-      <div className="mb-8 hidden lg:block"><Brand /></div>
+    <div className="flex min-h-full flex-col p-5">
+      <div className="mb-5 pr-1 lg:mb-8"><Brand /></div>
+      <div className="mb-6 grid grid-cols-2 gap-2 lg:hidden">
+        <button onClick={onSearch} className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-black/7 bg-[var(--soft)] text-[11px] font-extrabold text-[var(--foreground)]">
+          <Search className="size-4" /> جستجو
+        </button>
+        <button onClick={onTheme} className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-black/7 bg-[var(--soft)] text-[11px] font-extrabold text-[var(--foreground)]">
+          {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+          {theme === "dark" ? "تم روشن" : "تم تیره"}
+        </button>
+      </div>
       <div className="mb-3 px-2 text-[11px] font-bold text-[var(--muted)]">دسته‌بندی محصولات</div>
       <nav className="space-y-1.5">
         {sideItems.map(({ href, label, icon: Icon }) => (
@@ -96,8 +107,8 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
             className="group flex items-center justify-between rounded-2xl px-3 py-3 text-[13px] font-bold text-[var(--muted)] transition hover:bg-[var(--soft)] hover:text-[var(--foreground)]"
           >
             <span className="flex items-center gap-3">
-              <span className="grid size-9 place-items-center rounded-xl border border-black/5 bg-white shadow-sm transition group-hover:bg-[var(--acid)]">
-                <Icon className="size-4" />
+              <span className="grid size-9 place-items-center rounded-xl border border-black/5 shadow-sm transition group-hover:bg-[var(--acid)] group-hover:text-[var(--ink)] group-hover:shadow-[0_0_22px_rgba(186,244,81,.35)]">
+                <Icon className="size-4 transition-transform duration-300 group-hover:scale-110" />
               </span>
               {label}
             </span>
@@ -118,9 +129,9 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
           <span className="grid size-9 place-items-center rounded-xl bg-[var(--acid)] text-[var(--ink)]"><Headphones className="size-4" /></span>
           <span className="text-[10px] text-white/45">پشتیبانی هنرمند</span>
         </div>
-        <p className="text-sm font-extrabold">برای انتخاب صدا کمک می‌خواهی؟</p>
-        <Link href="/contact" onClick={onNavigate} className="mt-3 flex items-center justify-between text-[11px] font-bold text-[var(--acid)]">
-          گپ با ما <ChevronLeft className="size-4" />
+        <p className="text-sm font-extrabold">نمی‌دانی از کجا شروع کنی؟</p>
+        <Link href="/consultation" onClick={onNavigate} className="mt-3 flex items-center justify-between text-[11px] font-bold text-[var(--acid)]">
+          مشاوره انتخاب مسیر <ChevronLeft className="size-4" />
         </Link>
       </div>
     </div>
@@ -166,28 +177,113 @@ function SearchDialog({ open, close }: { open: boolean; close: () => void }) {
 function Header({ onMenu, onSearch, theme, onTheme }: { onMenu: () => void; onSearch: () => void; theme: "light" | "dark"; onTheme: () => void }) {
   const pathname = usePathname();
   const { count } = useShop();
+  const [productsOpen, setProductsOpen] = useState(false);
+  const productsMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const closeMenu = (event: PointerEvent) => {
+      if (!productsMenuRef.current?.contains(event.target as Node)) setProductsOpen(false);
+    };
+    const closeWithKeyboard = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setProductsOpen(false);
+    };
+    document.addEventListener("pointerdown", closeMenu);
+    document.addEventListener("keydown", closeWithKeyboard);
+    return () => {
+      document.removeEventListener("pointerdown", closeMenu);
+      document.removeEventListener("keydown", closeWithKeyboard);
+    };
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-black/5 bg-[rgba(247,248,243,.82)] backdrop-blur-xl">
-      <div className="mx-auto flex h-[78px] max-w-[1500px] items-center gap-5 px-4 sm:px-7">
+    <header className="site-header sticky top-0 z-40 border-b border-black/5 backdrop-blur-xl">
+      <div className="relative mx-auto flex h-[70px] max-w-[1500px] items-center gap-5 px-4 sm:px-7 lg:h-[78px]">
         <button onClick={onMenu} className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white lg:hidden" aria-label="باز کردن منو"><Menu className="size-5" /></button>
-        <div className="lg:hidden"><Brand /></div>
+        <div className="absolute left-1/2 -translate-x-1/2 scale-90 lg:hidden"><Brand /></div>
         <nav className="hidden items-center gap-1 lg:flex">
-          {navItems.map((item) => (
+          {navItems.map((item) => item.href === "/shop" ? (
+            <div
+              key={item.href}
+              ref={productsMenuRef}
+              className="relative"
+              onMouseEnter={() => setProductsOpen(true)}
+              onMouseLeave={() => setProductsOpen(false)}
+            >
+              <span aria-hidden="true" className="absolute inset-x-0 top-full h-3" />
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={productsOpen}
+                onClick={() => setProductsOpen((open) => !open)}
+                className={`flex items-center gap-1.5 rounded-xl px-3 py-2 text-[12px] font-bold transition ${pathname.startsWith("/shop") || pathname.startsWith("/samples") ? "bg-[var(--ink)] text-white" : "text-[var(--muted)] hover:bg-white hover:text-[var(--foreground)]"}`}
+              >
+                {item.label}
+                <ChevronDown className={`size-3.5 transition-transform duration-300 ${productsOpen ? "rotate-180" : ""}`} />
+              </button>
+              <AnimatePresence>
+                {productsOpen && (
+                  <motion.div
+                    role="menu"
+                    aria-label="دسته‌بندی محصولات"
+                    initial={{ opacity: 0, y: 8, scale: .98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: .985 }}
+                    transition={{ duration: .2, ease: [0.22, 1, 0.36, 1] }}
+                    style={{
+                      background: "var(--card)",
+                      backdropFilter: "blur(24px) saturate(135%)",
+                      WebkitBackdropFilter: "blur(24px) saturate(135%)",
+                    }}
+                    className="product-dropdown absolute right-0 top-[calc(100%+10px)] z-[60] w-[540px] overflow-hidden rounded-[26px] border border-black/7 p-2 shadow-[0_24px_80px_rgba(17,22,14,.16)]"
+                  >
+                    <div className="flex items-center justify-between px-3 pb-2 pt-1.5">
+                      <div>
+                        <p className="text-[13px] font-black text-[var(--foreground)]">دنیای صدای موآد</p>
+                        <p className="mt-1 text-[10px] font-medium text-[var(--muted)]">دسته مناسب پروژه‌ات را انتخاب کن</p>
+                      </div>
+                      <Link href="/shop" role="menuitem" onClick={() => setProductsOpen(false)} className="flex items-center gap-1 rounded-xl bg-[var(--soft)] px-3 py-2 text-[10px] font-extrabold text-[var(--foreground)] transition hover:bg-[var(--acid)] hover:text-[var(--ink)]">
+                        همه محصولات <ChevronLeft className="size-3.5" />
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      {sideItems.map(({ href, label, icon: Icon }, index) => (
+                        <Link key={href} href={href} role="menuitem" onClick={() => setProductsOpen(false)} className="product-dropdown-item group flex items-center gap-3 rounded-[18px] p-3 transition duration-300 hover:bg-[var(--soft)]">
+                          <span className="grid size-11 shrink-0 place-items-center rounded-[14px] bg-[var(--soft)] text-[var(--foreground)] transition duration-300 group-hover:bg-[var(--acid)] group-hover:text-[var(--ink)] group-hover:shadow-[0_0_22px_rgba(186,244,81,.3)]">
+                            <Icon className="size-[18px] transition-transform duration-300 group-hover:scale-110" />
+                          </span>
+                          <span className="min-w-0">
+                            <strong className="block text-[12px] font-extrabold text-[var(--foreground)]">{label}</strong>
+                            <small className="mt-1 block text-[9px] font-medium text-[var(--muted)]">{["ریتم، لوپ و وان‌شات", "ملودی، ساز و تکسچر", "وکال، چاپ و افکت", "پریست و صداهای آماده"][index]}</small>
+                          </span>
+                          <ChevronLeft className="mr-auto size-3.5 -translate-x-1 text-[var(--muted)] opacity-0 transition duration-300 group-hover:translate-x-0 group-hover:opacity-100" />
+                        </Link>
+                      ))}
+                    </div>
+                    <Link href="/consultation" role="menuitem" onClick={() => setProductsOpen(false)} className="group mt-2 flex items-center justify-between rounded-[18px] bg-[var(--ink)] px-4 py-3 text-white transition hover:shadow-[0_0_28px_rgba(186,244,81,.14)]">
+                      <span className="flex items-center gap-3">
+                        <span className="grid size-9 place-items-center rounded-xl bg-[var(--acid)] text-[var(--ink)]"><Headphones className="size-4" /></span>
+                        <span><strong className="block text-[11px] font-extrabold">از کجا شروع کنم؟</strong><small className="mt-0.5 block text-[9px] text-white/50">با چند سؤال، انتخاب مناسب را پیدا کن</small></span>
+                      </span>
+                      <ChevronLeft className="size-4 text-[var(--acid)] transition-transform group-hover:-translate-x-1" />
+                    </Link>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : (
             <Link key={item.href} href={item.href} className={`rounded-xl px-3 py-2 text-[12px] font-bold transition ${pathname === item.href ? "bg-[var(--ink)] text-white" : "text-[var(--muted)] hover:bg-white hover:text-[var(--foreground)]"}`}>{item.label}</Link>
           ))}
         </nav>
-        <button onClick={onSearch} className="mr-auto hidden h-11 w-full max-w-[350px] items-center gap-3 rounded-2xl border border-black/6 bg-white px-4 text-right text-xs text-[var(--muted)] shadow-[0_8px_30px_rgba(15,18,13,.03)] sm:flex">
+        <button onClick={onSearch} className="mr-auto hidden h-11 w-full max-w-[350px] items-center gap-3 rounded-2xl border border-black/6 bg-white px-4 text-right text-xs text-[var(--muted)] shadow-[0_8px_30px_rgba(15,18,13,.03)] lg:flex">
           <Search className="size-4" />
           دنبال سمپل، ژانر یا دوره بگرد...
           <span className="mr-auto rounded-lg bg-[var(--soft)] px-2 py-1 font-mono text-[9px]">⌘ K</span>
         </button>
-        <button onClick={onSearch} className="mr-auto grid size-11 place-items-center rounded-2xl bg-white sm:hidden" aria-label="جستجو"><Search className="size-5" /></button>
-        <Link href="/cart" className="relative grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="سبد خرید">
+        <Link href="/cart" className="relative mr-auto grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5 lg:mr-0" aria-label="سبد خرید">
           <ShoppingBag className="size-5" />
           {count > 0 && <span className="absolute -left-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--acid)] text-[9px] font-black text-[var(--ink)]">{count}</span>}
         </Link>
-        <button onClick={onTheme} className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label={theme === "dark" ? "فعال‌کردن تم روشن" : "فعال‌کردن تم تیره"} title={theme === "dark" ? "تم روشن" : "تم تیره"}>{theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>
-        <button className="hidden h-11 items-center gap-2 rounded-2xl bg-[var(--ink)] px-4 text-xs font-bold text-white md:flex"><UserRound className="size-4" /> ورود / ثبت‌نام</button>
+        <button onClick={onTheme} className="hidden size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5 lg:grid" aria-label={theme === "dark" ? "فعال‌کردن تم روشن" : "فعال‌کردن تم تیره"} title={theme === "dark" ? "تم روشن" : "تم تیره"}>{theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>
       </div>
     </header>
   );
@@ -198,14 +294,20 @@ function Footer() {
     <footer className="mx-3 mb-3 mt-24 overflow-hidden rounded-[34px] bg-[var(--ink)] text-white sm:mx-6">
       <div className="grid gap-12 px-6 py-12 md:grid-cols-[1.4fr_.8fr_.8fr] md:px-10">
         <div>
-          <div className="flex items-center gap-3 text-[var(--acid)]"><AudioWaveform className="size-7" /><strong className="text-xl tracking-tight">MOAD ACADEMY</strong></div>
+          <div className="flex items-center gap-3 text-[var(--acid)]"><AudioWaveform className="size-7" /><strong className="text-xl">موآد استودیو</strong></div>
           <p className="mt-5 max-w-md text-sm leading-8 text-white/55">خانه‌ی صداهای تازه و آموزش‌های بی‌حاشیه برای موزیسین‌هایی که می‌خواهند هر قطعه، یک قدم به امضای شخصی‌شان نزدیک‌تر باشد.</p>
-          <div className="mt-6 flex gap-2"><a href="#" className="social-button" aria-label="Instagram"><Camera /></a><a href="#" className="social-button" aria-label="Youtube"><Video /></a><a href="#" className="social-button" aria-label="Telegram"><Send /></a></div>
+          <div className="mt-6 flex gap-2"><a href="#" className="social-button" aria-label="اینستاگرام"><Camera /></a><a href="#" className="social-button" aria-label="ویدیوها"><Video /></a><a href="#" className="social-button" aria-label="تلگرام"><Send /></a></div>
+          <div className="mt-7 grid grid-cols-4 gap-2 md:hidden">
+            <Link href="/shop" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><ShoppingBag className="size-4 text-[var(--acid)]" />محصولات</Link>
+            <Link href="/courses" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><GraduationCap className="size-4 text-[var(--acid)]" />دوره‌ها</Link>
+            <Link href="/faq" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><CircleHelp className="size-4 text-[var(--acid)]" />پرسش‌ها</Link>
+            <Link href="/contact" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><MessageCircle className="size-4 text-[var(--acid)]" />تماس</Link>
+          </div>
         </div>
-        <div><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">دسترسی سریع</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/samples">سمپل‌پک‌ها</Link><Link className="block hover:text-white" href="/courses">دوره‌های آموزشی</Link><Link className="block hover:text-white" href="/blog">مجله موآد</Link><Link className="block hover:text-white" href="/about">داستان ما</Link></div></div>
-        <div><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">همراهی و پشتیبانی</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/contact">تماس با ما</Link><Link className="block hover:text-white" href="/faq">سوالات متداول</Link><span className="block">شنبه تا پنجشنبه، ۹ تا ۱۸</span><span className="block text-white">hello@moadacademy.ir</span></div></div>
+        <div className="hidden md:block"><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">دسترسی سریع</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/shop">محصولات</Link><Link className="block hover:text-white" href="/courses">دوره‌های آموزشی</Link><Link className="block hover:text-white" href="/blog">مجله موآد</Link><Link className="block hover:text-white" href="/about">داستان ما</Link></div></div>
+        <div className="hidden md:block"><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">همراهی و پشتیبانی</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/contact">تماس با ما</Link><Link className="block hover:text-white" href="/faq">سوالات متداول</Link><span className="block">شنبه تا پنجشنبه، ۹ تا ۱۸</span><span className="block text-white">hello@moad.studio</span></div></div>
       </div>
-      <div className="flex flex-col gap-2 border-t border-white/10 px-6 py-5 text-[10px] text-white/35 sm:flex-row sm:items-center sm:justify-between md:px-10"><span>© ۱۴۰۵ تمامی حقوق برای Moad Academy محفوظ است.</span><span>ساخته شده برای کسانی که صدا را جدی می‌گیرند.</span></div>
+      <div className="flex flex-col gap-2 border-t border-white/10 px-6 py-5 text-[10px] text-white/35 sm:flex-row sm:items-center sm:justify-between md:px-10"><span>© ۱۴۰۵ تمامی حقوق برای موآد استودیو محفوظ است.</span><span>ساخته شده برای کسانی که صدا را جدی می‌گیرند.</span></div>
     </footer>
   );
 }
@@ -245,16 +347,23 @@ export default function SiteShell({ children }: { children: ReactNode }) {
     removeFromCart: (slug) => setItems((current) => current.filter((item) => item.slug !== slug)),
   }), [items]);
 
+  const toggleTheme = () => {
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("moad-theme", next);
+    setTheme(next);
+  };
+
   return (
     <ShopContext.Provider value={value}>
       <div className="min-h-screen lg:pr-[286px]">
         <aside className="fixed inset-y-3 right-3 z-50 hidden w-[266px] overflow-hidden rounded-[30px] border border-black/6 bg-white shadow-[0_20px_70px_rgba(18,24,15,.08)] lg:block"><Sidebar /></aside>
-        <Header onMenu={() => setDrawer(true)} onSearch={() => setSearch(true)} theme={theme} onTheme={() => { const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; document.documentElement.dataset.theme = next; localStorage.setItem("moad-theme", next); setTheme(next); }} />
+        <Header onMenu={() => setDrawer(true)} onSearch={() => setSearch(true)} theme={theme} onTheme={toggleTheme} />
         <main>{children}</main>
         <Footer />
       </div>
       <AnimatePresence>
-        {drawer && <motion.div className="fixed inset-0 z-[80] bg-black/55 backdrop-blur-sm lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)}><motion.aside className="absolute inset-y-2 right-2 w-[min(88vw,320px)] overflow-hidden rounded-[28px] bg-white" initial={{ x: 350 }} animate={{ x: 0 }} exit={{ x: 350 }} transition={{ type: "spring", damping: 28, stiffness: 260 }} onClick={(event) => event.stopPropagation()}><button onClick={() => setDrawer(false)} className="absolute left-4 top-4 z-10 grid size-9 place-items-center rounded-xl bg-[var(--soft)]"><X className="size-4" /></button><Sidebar onNavigate={() => setDrawer(false)} /></motion.aside></motion.div>}
+        {drawer && <motion.div className="fixed inset-0 z-[80] bg-black/55 backdrop-blur-sm lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)}><motion.aside className="absolute inset-y-2 right-2 w-[min(88vw,320px)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-[28px] bg-white" initial={{ x: 350 }} animate={{ x: 0 }} exit={{ x: 350 }} transition={{ type: "spring", damping: 28, stiffness: 260 }} onClick={(event) => event.stopPropagation()}><button onClick={() => setDrawer(false)} className="sticky left-4 top-4 z-10 float-left grid size-9 place-items-center rounded-xl bg-[var(--soft)] shadow-sm" aria-label="بستن منو"><X className="size-4" /></button><Sidebar onNavigate={() => setDrawer(false)} onSearch={() => { setDrawer(false); setSearch(true); }} theme={theme} onTheme={toggleTheme} /></motion.aside></motion.div>}
       </AnimatePresence>
       <SearchDialog open={search} close={() => setSearch(false)} />
     </ShopContext.Provider>

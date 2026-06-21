@@ -12,7 +12,7 @@ export default function SampleCatalog() {
   const [query, setQuery] = useState("");
   const items = useMemo(() => samplePacks.filter((pack) => {
     const matchesQuery = `${pack.title} ${pack.enTitle} ${pack.genre}`.toLowerCase().includes(query.toLowerCase());
-    const map: Record<string, string> = { "ترپ": "Trap", "آر‌اند‌بی": "R&B", "هیپ‌هاپ": "Hip-Hop", "هاوس": "House", "سینمایی": "Cinematic", "پاپ": "Pop" };
+    const map: Record<string, string> = { "ترپ": "ترپ", "آر‌اند‌بی": "آر‌اند‌بی", "هیپ‌هاپ": "هیپ‌هاپ", "هاوس": "هاوس", "سینمایی": "سینمایی", "پاپ": "پاپ" };
     return matchesQuery && (filter === "همه" || pack.genre.includes(map[filter]));
   }), [filter, query]);
 

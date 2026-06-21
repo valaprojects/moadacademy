@@ -4,17 +4,27 @@ import "./globals.css";
 import SiteShell from "@/components/site-shell";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://moad.studio"),
   title: {
-    default: "Moad Academy | صدای بعدی‌ات را بساز",
-    template: "%s | Moad Academy",
+    default: "موآد استودیو | صدای بعدی‌ات را بساز",
+    template: "%s | موآد استودیو",
   },
   description: "سمپل‌پک، بانک صدا و آموزش‌های کاربردی تولید موسیقی برای ساخت صدایی که امضای خودت را دارد.",
-  keywords: ["سمپل پک", "آموزش موسیقی", "بیت سازی", "میکس", "پروداکشن موسیقی"],
+  keywords: ["سمپل پک", "آموزش موسیقی", "بیت سازی", "میکس", "تولید موسیقی"],
+  alternates: { canonical: "/" },
+  openGraph: {
+    siteName: "موآد استودیو",
+    title: "موآد استودیو",
+    description: "سمپل‌پک و آموزش کاربردی تولید موسیقی",
+    url: "https://moad.studio",
+    locale: "fa_IR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fa" dir="rtl" className="scroll-smooth" suppressHydrationWarning>
+    <html lang="fa" dir="rtl" className="scroll-smooth" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
