@@ -1,0 +1,11 @@
+import type { Metadata } from "next";
+import { CheckCircle2, GraduationCap, MessageCircle, PlayCircle } from "lucide-react";
+import { Reveal } from "@/components/motion";
+import { CourseCard, PageIntro, SectionTitle } from "@/components/ui";
+import { courses } from "@/lib/data";
+
+export const metadata: Metadata = { title: "دوره‌های آموزشی", description: "دوره‌های پروژه‌محور تولید موسیقی، بیت‌سازی، میکس و طراحی صدا" };
+export default function CoursesPage() {
+  return <div className="page-wrap"><PageIntro eyebrow="MOAD LEARNING PATH" title="کمتر تماشا کن؛ بیشتر بساز." text="دوره‌های موآد برای جمع‌کردن ویدیو نیستند. هر مسیر با یک پروژه واقعی جلو می‌رود تا دانسته‌هایت همان روز تبدیل به صدا شوند." /><section className="section-space mt-14"><SectionTitle eyebrow="مسیرهای یادگیری" title="هرجا هستی، از همان‌جا شروع کن." text="از ساخت اولین بیت تا طراحی صدای شخصی؛ دوره‌ای را انتخاب کن که یک قدم واقعی جلوترت می‌برد." /><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{courses.map((course, index) => <CourseCard key={course.slug} course={course} index={index} />)}</div></section><Reveal className="section-space"><section className="grid gap-8 rounded-[32px] border border-black/6 bg-white p-6 sm:p-9 lg:grid-cols-[1fr_1fr]"><div><span className="eyebrow"><GraduationCap className="size-3" />روش موآد</span><h2 className="text-2xl font-black leading-10">یادگیری باید در پروژه شنیده شود، نه فقط در ذهن بماند.</h2><p className="mt-4 text-sm leading-8 text-[var(--muted)]">هر جلسه با یک تمرین کوتاه تمام می‌شود و هر فصل بخشی از پروژه نهایی را جلو می‌برد. مسیر مشخص است، اما صدایی که می‌سازی کاملاً متعلق به خودت خواهد بود.</p></div><div className="grid gap-3 sm:grid-cols-2">{[{ icon: PlayCircle, t: "ویدیوهای فشرده", d: "بدون مقدمه‌های طولانی" }, { icon: CheckCircle2, t: "تمرین پروژه‌ای", d: "خروجی مشخص در هر فصل" }, { icon: MessageCircle, t: "بازخورد مربی", d: "پاسخ به تمرین و سوال" }, { icon: GraduationCap, t: "دسترسی همیشگی", d: "یادگیری با ریتم خودت" }].map(({ icon: Icon, t, d }) => <div key={t} className="rounded-2xl bg-[var(--soft)] p-4"><Icon className="size-5 text-[#6b9438]" /><strong className="mt-4 block text-xs">{t}</strong><span className="mt-1 block text-[10px] text-[var(--muted)]">{d}</span></div>)}</div></section></Reveal></div>;
+}
+
