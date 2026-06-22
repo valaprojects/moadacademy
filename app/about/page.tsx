@@ -22,7 +22,7 @@ export default function AboutPage() {
 
       <Reveal className="section-space mt-14">
         <section className="grid gap-8 lg:grid-cols-[.8fr_1.2fr]">
-          <div className="relative min-h-80 overflow-hidden rounded-[30px] bg-[var(--acid)] p-7 text-[var(--ink)]">
+          <div className="accent-surface relative min-h-80 overflow-hidden rounded-[30px] p-7">
             <div className="absolute -bottom-24 -left-20 size-80 rounded-full border-[45px] border-black/5" />
             <AudioWaveform className="size-10" />
             <strong className="absolute bottom-8 right-7 max-w-xs text-3xl font-black leading-[1.5]">صدا، وقتی ماندگار می‌شود که چیزی از تو در آن باشد.</strong>

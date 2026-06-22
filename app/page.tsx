@@ -2,7 +2,7 @@ import { ArrowLeft, CheckCircle2, Compass, Play, Sparkles } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { HeroMotion, Reveal } from "@/components/motion";
-import ProductCard from "@/components/product-card";
+import ProductCarousel from "@/components/product-carousel";
 import { ArticleCards, CategoryGrid, Newsletter, SectionTitle } from "@/components/ui";
 import { courses, samplePacks } from "@/lib/data";
 
@@ -28,7 +28,7 @@ export default function Home() {
 
       <section className="section-space mt-14">
         <SectionTitle eyebrow="انتخاب این هفته" title="صداهایی که منتظر ایده‌ی تو هستند." text="هر پک با دقت انتخاب، ضبط و پردازش شده تا به‌جای وقت‌گرفتن، مسیر خلاقیت را کوتاه‌تر کند." href="/shop" />
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{samplePacks.slice(0, 4).map((pack, index) => <ProductCard key={pack.slug} pack={pack} index={index} />)}</div>
+        <ProductCarousel items={samplePacks} label="صداهای منتخب این هفته" />
       </section>
 
       <section className="section-space"><SectionTitle eyebrow="از جنس نیاز تو" title="دنبال چه صدایی می‌گردی؟" /><CategoryGrid /></section>
