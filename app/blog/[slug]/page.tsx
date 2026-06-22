@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ArrowRight, Clock3, Lightbulb, Quote, Target } from "lucide-react";
+import { ArrowRight, Lightbulb, Quote, Target } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ArticleReadingSidebar, { type ArticleSection } from "@/components/article-reading-sidebar";
@@ -8,13 +8,6 @@ import { articles } from "@/lib/data";
 
 type Props = { params: Promise<{ slug: string }> };
 
-const sections: ArticleSection[] = [
-  { id: "introduction", title: "مقدمه و صورت مسئله", group: "شروع آموزش" },
-  { id: "listen-first", title: "اول گوش کن، بعد ابزار", group: "تصمیم‌گیری درست" },
-  { id: "one-change", title: "یک تغییر در هر مرحله", group: "تصمیم‌گیری درست" },
-  { id: "weekly-practice", title: "تمرین عملی این هفته", group: "تمرین و جمع‌بندی" },
-];
-
 export function generateStaticParams() { return articles.map((article) => ({ slug: article.slug })); }
 export async function generateMetadata({ params }: Props): Promise<Metadata> { const { slug } = await params; const article = articles.find((item) => item.slug === slug); return article ? { title: article.title, description: article.excerpt } : {}; }
 
@@ -22,16 +15,23 @@ export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
   const article = articles.find((item) => item.slug === slug);
   if (!article) notFound();
+  const sections: ArticleSection[] = [
+    { id: "article-start", title: article.title, group: "شروع مقاله" },
+    { id: "introduction", title: "قبل از هر ابزار، مسئله را درست ببین", group: "شروع مقاله" },
+    { id: "listen-first", title: "اول گوش کن، بعد دست به ابزار ببر", group: "تصمیم‌گیری درست" },
+    { id: "one-change", title: "یک تغییر در هر مرحله", group: "تصمیم‌گیری درست" },
+    { id: "weekly-practice", title: "تمرین عملی این هفته", group: "تمرین و جمع‌بندی" },
+  ];
 
   return (
     <div className="page-wrap pb-16">
       <Link href="/blog" className="mb-5 mt-8 flex w-fit items-center gap-2 text-[10px] font-bold text-[var(--muted)]"><ArrowRight className="size-3" />بازگشت به مجله</Link>
       <div className="grid items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)]">
-        <ArticleReadingSidebar sections={sections} />
+        <ArticleReadingSidebar sections={sections} relatedArticles={articles.filter((item) => item.series === article.series)} currentSlug={article.slug} />
         <article data-reading-article className="min-w-0">
-          <header className="relative overflow-hidden rounded-[32px] bg-[var(--ink)] px-6 py-12 text-white sm:px-12 sm:py-16 lg:px-14">
+          <header id="article-start" data-article-section className="relative scroll-mt-28 overflow-hidden rounded-[32px] bg-[var(--ink)] px-6 py-12 text-white sm:px-12 sm:py-14 lg:px-14">
             <div className="hero-grid absolute inset-0 opacity-20" /><div className="absolute -left-24 -top-32 size-96 rounded-full bg-[var(--acid)]/10 blur-3xl" />
-            <div className="relative"><div className="flex items-center gap-3 text-[10px] text-[var(--acid)]"><span>{article.category}</span><span className="size-1 rounded-full bg-white/25" /><span className="flex items-center gap-1 text-white/45"><Clock3 className="size-3" />{article.readTime}</span></div><h1 className="mt-6 max-w-4xl text-3xl font-black leading-[1.55] tracking-[-.05em] sm:text-5xl">{article.title}</h1><p className="mt-5 max-w-3xl text-sm leading-8 text-white/50">{article.excerpt}</p></div>
+            <h1 className="relative max-w-4xl text-3xl font-black leading-[1.55] tracking-[-.05em] sm:text-5xl">{article.title}</h1>
           </header>
 
           <div className="mt-5">
@@ -40,6 +40,7 @@ export default async function ArticlePage({ params }: Props) {
               accent="#baf451"
               compact
               titleTag="p"
+              showTitleOverlay={false}
               menuLabel="بخش‌های مهم ویدئو"
               timeline={article.timeline}
               videos={[{

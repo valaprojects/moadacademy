@@ -41,6 +41,7 @@ type ProductVideoProps = {
   menuLabel?: string;
   compact?: boolean;
   titleTag?: "h1" | "p";
+  showTitleOverlay?: boolean;
 };
 
 function formatTime(value: number) {
@@ -54,7 +55,7 @@ function formatFaTime(value: number) {
   return formatTime(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
-export default function ProductVideo({ title, accent, videos = productVideos, timeline = [], menuLabel = "ویدئوهای محصول", compact = false, titleTag = "h1" }: ProductVideoProps) {
+export default function ProductVideo({ title, accent, videos = productVideos, timeline = [], menuLabel = "ویدئوهای محصول", compact = false, titleTag = "h1", showTitleOverlay = true }: ProductVideoProps) {
   const playlist = videos.length ? videos : productVideos;
   const [activeVideo, setActiveVideo] = useState<PlayerVideo>(playlist[0]);
   const [playing, setPlaying] = useState(false);
@@ -156,7 +157,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   const activeTimelineId = timeline.reduce((activeId, point) => currentTime >= point.time ? point.id : activeId, timeline[0]?.id ?? "");
 
   return (
-    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-screen rounded-none" : `${compact ? "h-[310px] sm:h-[390px] lg:h-[470px]" : "h-[390px] lg:h-[560px]"} rounded-[32px]`}`}>
+    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-screen rounded-none" : `${compact ? "aspect-video" : "h-[390px] lg:h-[560px]"} rounded-[32px]`}`}>
       <video
         ref={videoRef}
         src={activeVideo.src}
@@ -266,10 +267,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
       )}
 
       <div className="absolute inset-x-4 bottom-4 z-20 sm:inset-x-6 sm:bottom-6">
-        <div className="mb-3 px-1">
+        {showTitleOverlay && <div className="mb-3 px-1">
           <span className="text-[9px] text-white/45">{activeVideo.title}</span>
           {titleTag === "h1" ? <h1 className="mt-1 text-2xl font-black sm:text-4xl">{title}</h1> : <p className="mt-1 text-xl font-black sm:text-3xl">{title}</p>}
-        </div>
+        </div>}
         <div className="flex items-center gap-2.5 rounded-[20px] border border-white/10 bg-black/55 p-2.5 shadow-2xl backdrop-blur-xl sm:gap-3 sm:px-3">
           <button type="button" onClick={togglePlay} className="grid size-9 shrink-0 place-items-center rounded-xl text-[var(--ink)] transition hover:scale-105" style={{ background: accent }} aria-label={playing ? "توقف ویدئو" : "پخش ویدئو"}>
             {playing ? <Pause className="size-4" fill="currentColor" /> : <Play className="mr-0.5 size-4" fill="currentColor" />}

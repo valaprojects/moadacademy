@@ -2,35 +2,34 @@
 
 import { BookOpen, Check, ChevronDown, CircleDot, ListTree } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export type ArticleSection = { id: string; title: string; group: string };
+export type RelatedArticle = { slug: string; title: string; series: string; seriesOrder: number; category: string };
 
-export default function ArticleReadingSidebar({ sections }: { sections: ArticleSection[] }) {
+export default function ArticleReadingSidebar({ sections, relatedArticles, currentSlug }: { sections: ArticleSection[]; relatedArticles: RelatedArticle[]; currentSlug: string }) {
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
   const [progress, setProgress] = useState(0);
-  const groups = Array.from(new Set(sections.map((section) => section.group)));
-  const [openGroup, setOpenGroup] = useState<string | null>(groups[0] ?? null);
+  const series = Array.from(new Set(relatedArticles.map((article) => article.series)));
+  const [openSeries, setOpenSeries] = useState<string | null>(series[0] ?? null);
 
   useEffect(() => {
     const elements = sections.map((section) => document.getElementById(section.id)).filter(Boolean) as HTMLElement[];
-    const observer = new IntersectionObserver((entries) => {
-      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-      if (visible[0]) setActiveId(visible[0].target.id);
-    }, { rootMargin: "-18% 0px -62% 0px", threshold: [0, .2, .6] });
-    elements.forEach((element) => observer.observe(element));
-
-    const updateProgress = () => {
+    const updateReadingState = () => {
       const article = document.querySelector<HTMLElement>("[data-reading-article]");
       if (!article) return;
       const start = article.offsetTop;
       const distance = Math.max(1, article.offsetHeight - window.innerHeight);
       setProgress(Math.min(100, Math.max(0, ((window.scrollY - start) / distance) * 100)));
+      const readingLine = window.innerHeight * .3;
+      const current = elements.reduce<HTMLElement | null>((candidate, element) => element.getBoundingClientRect().top <= readingLine ? element : candidate, elements[0] ?? null);
+      if (current) setActiveId(current.id);
     };
-    updateProgress();
-    window.addEventListener("scroll", updateProgress, { passive: true });
-    window.addEventListener("resize", updateProgress);
-    return () => { observer.disconnect(); window.removeEventListener("scroll", updateProgress); window.removeEventListener("resize", updateProgress); };
+    updateReadingState();
+    window.addEventListener("scroll", updateReadingState, { passive: true });
+    window.addEventListener("resize", updateReadingState);
+    return () => { window.removeEventListener("scroll", updateReadingState); window.removeEventListener("resize", updateReadingState); };
   }, [sections]);
 
   const goTo = (id: string) => {
@@ -43,23 +42,22 @@ export default function ArticleReadingSidebar({ sections }: { sections: ArticleS
   return (
     <aside className="space-y-4 lg:sticky lg:top-24">
       <section className="overflow-hidden rounded-[26px] border border-black/6 bg-[var(--card)] p-4 shadow-[0_16px_45px_rgba(17,22,14,.05)]">
-        <div className="mb-4 flex items-center gap-3 px-1"><span className="grid size-10 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><BookOpen className="size-4" /></span><div><span className="block text-[9px] font-bold text-[#6c9538]">راهنمای این مطلب</span><h2 className="mt-0.5 text-sm font-black">فصل‌های آموزش</h2></div></div>
-        <p className="mb-4 px-1 text-[10px] leading-6 text-[var(--muted)]">از مقدمه شروع کن یا مستقیماً سراغ بخشی برو که برای پروژه فعلی‌ات کاربردی‌تر است.</p>
+        <div className="mb-4 flex items-center gap-3 px-1"><span className="grid size-10 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><BookOpen className="size-4" /></span><div><span className="block text-[9px] font-bold text-[#6c9538]">آموزش‌های مرتبط</span><h2 className="mt-0.5 text-sm font-black">فصل‌های آموزش</h2></div></div>
+        <p className="mb-4 px-1 text-[10px] leading-6 text-[var(--muted)]">این مطلب بخشی از یک مسیر آموزشی متصل است؛ هر فصل صفحه مستقل خودش را دارد.</p>
         <div className="space-y-2">
-          {groups.map((group) => {
-            const open = openGroup === group;
+          {series.map((seriesTitle) => {
+            const open = openSeries === seriesTitle;
+            const items = relatedArticles.filter((article) => article.series === seriesTitle).sort((a, b) => a.seriesOrder - b.seriesOrder);
             return (
-              <section key={group} className={`overflow-hidden rounded-2xl bg-[var(--soft)] transition ${open ? "ring-1 ring-[#8bb846]/25" : ""}`}>
-                <button type="button" aria-expanded={open} onClick={() => setOpenGroup(open ? null : group)} className="flex w-full items-center justify-between gap-3 px-3 py-3 text-right text-[10px] font-black">
-                  <span>{group}</span><ChevronDown className={`size-3.5 text-[var(--muted)] transition-transform ${open ? "rotate-180" : ""}`} />
+              <section key={seriesTitle} className={`overflow-hidden rounded-2xl bg-[var(--soft)] transition ${open ? "ring-1 ring-[#8bb846]/25" : ""}`}>
+                <button type="button" aria-expanded={open} onClick={() => setOpenSeries(open ? null : seriesTitle)} className="flex w-full items-center justify-between gap-3 px-3 py-3 text-right text-[10px] font-black">
+                  <span>{seriesTitle}</span><span className="mr-auto text-[8px] font-bold text-[var(--muted)]">{items.length.toLocaleString("fa-IR")} فصل</span><ChevronDown className={`size-3.5 text-[var(--muted)] transition-transform ${open ? "rotate-180" : ""}`} />
                 </button>
                 <AnimatePresence initial={false}>
                   {open && (
                     <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: .22 }} className="overflow-hidden">
                       <div className="space-y-1 border-t border-black/5 p-2">
-                        {sections.filter((section) => section.group === group).map((section) => (
-                          <button key={section.id} type="button" onClick={() => goTo(section.id)} className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2.5 text-right text-[9px] font-bold transition ${section.id === activeId ? "bg-[var(--acid)] text-[var(--ink)]" : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--foreground)]"}`}><span className={`size-1.5 shrink-0 rounded-full ${section.id === activeId ? "bg-[var(--ink)]" : "bg-[#86ad4b]"}`} />{section.title}</button>
-                        ))}
+                        {items.map((article) => { const current = article.slug === currentSlug; return <Link key={article.slug} href={`/blog/${article.slug}`} aria-current={current ? "page" : undefined} className={`flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2.5 text-right transition ${current ? "bg-[var(--acid)] text-[var(--ink)]" : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--foreground)]"}`}><span className={`grid size-6 shrink-0 place-items-center rounded-lg text-[8px] font-black ${current ? "bg-black/10" : "bg-[var(--card)]"}`}>{article.seriesOrder.toLocaleString("fa-IR")}</span><span className="min-w-0"><strong className="block text-[9px] leading-5">{article.title}</strong><small className={`mt-0.5 block text-[8px] ${current ? "text-black/50" : "text-[var(--muted)]"}`}>{article.category}</small></span></Link>; })}
                       </div>
                     </motion.div>
                   )}

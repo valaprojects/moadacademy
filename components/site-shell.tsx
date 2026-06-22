@@ -57,7 +57,7 @@ export function useShop() {
 const navItems = [
   { href: "/", label: "خانه", icon: Home },
   { href: "/shop", label: "محصولات", icon: AudioWaveform },
-  { href: "/courses", label: "دوره‌ها", icon: GraduationCap },
+  { href: "/courses", label: "دوره‌های رایگان", icon: GraduationCap },
   { href: "/blog", label: "مجله", icon: BookOpen },
   { href: "/consultation", label: "مشاوره", icon: MessageCircle },
 ];
@@ -299,12 +299,12 @@ function Footer() {
           <div className="mt-6 flex gap-2"><a href="#" className="social-button" aria-label="اینستاگرام"><Camera /></a><a href="#" className="social-button" aria-label="ویدیوها"><Video /></a><a href="#" className="social-button" aria-label="تلگرام"><Send /></a></div>
           <div className="mt-7 grid grid-cols-4 gap-2 md:hidden">
             <Link href="/shop" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><ShoppingBag className="size-4 text-[var(--acid)]" />محصولات</Link>
-            <Link href="/courses" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><GraduationCap className="size-4 text-[var(--acid)]" />دوره‌ها</Link>
+            <Link href="/courses" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><GraduationCap className="size-4 text-[var(--acid)]" />دوره رایگان</Link>
             <Link href="/faq" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><CircleHelp className="size-4 text-[var(--acid)]" />پرسش‌ها</Link>
             <Link href="/contact" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><MessageCircle className="size-4 text-[var(--acid)]" />تماس</Link>
           </div>
         </div>
-        <div className="hidden md:block"><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">دسترسی سریع</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/shop">محصولات</Link><Link className="block hover:text-white" href="/courses">دوره‌های آموزشی</Link><Link className="block hover:text-white" href="/blog">مجله موآد</Link><Link className="block hover:text-white" href="/about">داستان ما</Link></div></div>
+        <div className="hidden md:block"><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">دسترسی سریع</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/shop">محصولات</Link><Link className="block hover:text-white" href="/courses">دوره‌های رایگان</Link><Link className="block hover:text-white" href="/blog">مجله موآد</Link><Link className="block hover:text-white" href="/about">داستان ما</Link></div></div>
         <div className="hidden md:block"><h3 className="mb-4 text-sm font-extrabold text-[var(--acid)]">همراهی و پشتیبانی</h3><div className="space-y-3 text-xs text-white/55"><Link className="block hover:text-white" href="/contact">تماس با ما</Link><Link className="block hover:text-white" href="/faq">سوالات متداول</Link><span className="block">شنبه تا پنجشنبه، ۹ تا ۱۸</span><span className="block text-white">hello@moad.studio</span></div></div>
       </div>
       <div className="flex flex-col gap-2 border-t border-white/10 px-6 py-5 text-[10px] text-white/35 sm:flex-row sm:items-center sm:justify-between md:px-10"><span>© ۱۴۰۵ تمامی حقوق برای موآد استودیو محفوظ است.</span><span>ساخته شده برای کسانی که صدا را جدی می‌گیرند.</span></div>

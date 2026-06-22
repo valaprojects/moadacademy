@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { CheckCircle2, GraduationCap, MessageCircle, PlayCircle } from "lucide-react";
+import { CheckCircle2, FolderTree, GraduationCap, MessageCircle, PlayCircle } from "lucide-react";
+import Link from "next/link";
 import { Reveal } from "@/components/motion";
 import { CourseCard, PageIntro, SectionTitle } from "@/components/ui";
-import { courses } from "@/lib/data";
+import { courseCategories, courses } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "دوره های رایگان",
@@ -16,8 +17,13 @@ const benefits = [
   { icon: GraduationCap, title: "دسترسی همیشگی", text: "یادگیری با ریتم خودت" },
 ];
 
-export default function CoursesPage() {
+type Props = { searchParams: Promise<{ category?: string }> };
+
+export default async function CoursesPage({ searchParams }: Props) {
+  const { category } = await searchParams;
   const freeCourses = courses.filter((course) => course.isFree);
+  const activeCategory = courseCategories.find((item) => item.id === category);
+  const visibleCourses = activeCategory ? freeCourses.filter((course) => course.category === activeCategory.id) : freeCourses;
 
   return (
     <div className="page-wrap">
@@ -27,6 +33,14 @@ export default function CoursesPage() {
         text="مسیرهای کوتاه و پروژه‌محور برای اینکه بدون هزینه یادگیری را شروع کنی و همان روز نتیجه‌اش را در موسیقی خودت بشنوی."
       />
 
+      <section className="mt-8 rounded-[28px] border border-black/6 bg-[var(--card)] p-4 sm:p-5" aria-label="دسته‌بندی دوره‌های رایگان">
+        <div className="mb-4 flex items-center gap-3"><span className="grid size-10 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><FolderTree className="size-4" /></span><div><span className="text-[9px] font-bold text-[#679139]">دسته‌بندی آموزش‌ها</span><h2 className="text-sm font-black">موضوعی که می‌خواهی یاد بگیری را انتخاب کن</h2></div></div>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/courses" aria-current={!activeCategory ? "page" : undefined} className={`rounded-full px-4 py-2.5 text-[10px] font-extrabold transition ${!activeCategory ? "bg-[var(--acid)] text-[var(--ink)] shadow-[0_0_20px_rgba(186,244,81,.2)]" : "bg-[var(--soft)] text-[var(--muted)] hover:text-[var(--foreground)]"}`}>همه دوره‌ها <span className="mr-1 opacity-60">{freeCourses.length.toLocaleString("fa-IR")}</span></Link>
+          {courseCategories.map((item) => { const count = freeCourses.filter((course) => course.category === item.id).length; return <Link key={item.id} href={`/courses?category=${item.id}`} aria-current={activeCategory?.id === item.id ? "page" : undefined} className={`rounded-full px-4 py-2.5 text-[10px] font-extrabold transition ${activeCategory?.id === item.id ? "bg-[var(--acid)] text-[var(--ink)] shadow-[0_0_20px_rgba(186,244,81,.2)]" : "bg-[var(--soft)] text-[var(--muted)] hover:text-[var(--foreground)]"}`}>{item.title} <span className="mr-1 opacity-60">{count.toLocaleString("fa-IR")}</span></Link>; })}
+        </div>
+      </section>
+
       <section className="section-space mt-14">
         <SectionTitle
           eyebrow="شروع یادگیری"
@@ -34,7 +48,7 @@ export default function CoursesPage() {
           text="همه دوره‌های این صفحه رایگان‌اند و هر قسمت با ویدئو، توضیح و تمرین مشخص ارائه می‌شود."
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {freeCourses.map((course, index) => <CourseCard key={course.slug} course={course} index={index} />)}
+          {visibleCourses.map((course, index) => <CourseCard key={course.slug} course={course} index={index} />)}
         </div>
       </section>
 

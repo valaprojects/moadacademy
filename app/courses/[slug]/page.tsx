@@ -14,7 +14,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const course = courses.find((item) => item.slug === slug && item.isFree);
-  return course ? { title: course.title, description: course.description } : {};
+  return course ? { title: `${course.title} | دوره رایگان`, description: course.description, alternates: { canonical: `/courses/${course.slug}` } } : {};
 }
 
 export default async function CoursePage({ params }: Props) {
