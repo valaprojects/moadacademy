@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Check, ChevronDown, CircleDot, ListTree } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 export type ArticleSection = { id: string; title: string; group: string };
@@ -9,6 +10,7 @@ export default function ArticleReadingSidebar({ sections }: { sections: ArticleS
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
   const [progress, setProgress] = useState(0);
   const groups = Array.from(new Set(sections.map((section) => section.group)));
+  const [openGroup, setOpenGroup] = useState<string | null>(groups[0] ?? null);
 
   useEffect(() => {
     const elements = sections.map((section) => document.getElementById(section.id)).filter(Boolean) as HTMLElement[];
@@ -44,16 +46,27 @@ export default function ArticleReadingSidebar({ sections }: { sections: ArticleS
         <div className="mb-4 flex items-center gap-3 px-1"><span className="grid size-10 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><BookOpen className="size-4" /></span><div><span className="block text-[9px] font-bold text-[#6c9538]">راهنمای این مطلب</span><h2 className="mt-0.5 text-sm font-black">فصل‌های آموزش</h2></div></div>
         <p className="mb-4 px-1 text-[10px] leading-6 text-[var(--muted)]">از مقدمه شروع کن یا مستقیماً سراغ بخشی برو که برای پروژه فعلی‌ات کاربردی‌تر است.</p>
         <div className="space-y-2">
-          {groups.map((group, groupIndex) => (
-            <details key={group} open={groupIndex === 0} className="group rounded-2xl bg-[var(--soft)] open:ring-1 open:ring-[#8bb846]/25">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-[10px] font-black"><span>{group}</span><ChevronDown className="size-3.5 text-[var(--muted)] transition-transform group-open:rotate-180" /></summary>
-              <div className="space-y-1 border-t border-black/5 p-2">
-                {sections.filter((section) => section.group === group).map((section) => (
-                  <button key={section.id} type="button" onClick={() => goTo(section.id)} className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2.5 text-right text-[9px] font-bold transition ${section.id === activeId ? "bg-[var(--acid)] text-[var(--ink)]" : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--foreground)]"}`}><span className={`size-1.5 shrink-0 rounded-full ${section.id === activeId ? "bg-[var(--ink)]" : "bg-[#86ad4b]"}`} />{section.title}</button>
-                ))}
-              </div>
-            </details>
-          ))}
+          {groups.map((group) => {
+            const open = openGroup === group;
+            return (
+              <section key={group} className={`overflow-hidden rounded-2xl bg-[var(--soft)] transition ${open ? "ring-1 ring-[#8bb846]/25" : ""}`}>
+                <button type="button" aria-expanded={open} onClick={() => setOpenGroup(open ? null : group)} className="flex w-full items-center justify-between gap-3 px-3 py-3 text-right text-[10px] font-black">
+                  <span>{group}</span><ChevronDown className={`size-3.5 text-[var(--muted)] transition-transform ${open ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence initial={false}>
+                  {open && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: .22 }} className="overflow-hidden">
+                      <div className="space-y-1 border-t border-black/5 p-2">
+                        {sections.filter((section) => section.group === group).map((section) => (
+                          <button key={section.id} type="button" onClick={() => goTo(section.id)} className={`flex w-full items-center gap-2 rounded-xl px-2.5 py-2.5 text-right text-[9px] font-bold transition ${section.id === activeId ? "bg-[var(--acid)] text-[var(--ink)]" : "text-[var(--muted)] hover:bg-[var(--card)] hover:text-[var(--foreground)]"}`}><span className={`size-1.5 shrink-0 rounded-full ${section.id === activeId ? "bg-[var(--ink)]" : "bg-[#86ad4b]"}`} />{section.title}</button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </section>
+            );
+          })}
         </div>
       </section>
 

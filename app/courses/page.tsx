@@ -5,8 +5,8 @@ import { CourseCard, PageIntro, SectionTitle } from "@/components/ui";
 import { courses } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "دوره‌های آموزشی",
-  description: "دوره‌های پروژه‌محور تولید موسیقی، بیت‌سازی، میکس و طراحی صدا",
+  title: "دوره های رایگان",
+  description: "دوره‌های رایگان و پروژه‌محور تولید موسیقی، بیت‌سازی، میکس و طراحی صدا",
 };
 
 const benefits = [
@@ -17,22 +17,24 @@ const benefits = [
 ];
 
 export default function CoursesPage() {
+  const freeCourses = courses.filter((course) => course.isFree);
+
   return (
     <div className="page-wrap">
       <PageIntro
-        eyebrow="مسیر یادگیری موآد"
-        title="کمتر تماشا کن؛ بیشتر بساز."
-        text="دوره‌های موآد برای جمع‌کردن ویدیو نیستند. هر مسیر با یک پروژه واقعی جلو می‌رود تا دانسته‌هایت همان روز تبدیل به صدا شوند."
+        eyebrow="آموزش‌های آزاد موآد"
+        title="دوره های رایگان"
+        text="مسیرهای کوتاه و پروژه‌محور برای اینکه بدون هزینه یادگیری را شروع کنی و همان روز نتیجه‌اش را در موسیقی خودت بشنوی."
       />
 
       <section className="section-space mt-14">
         <SectionTitle
-          eyebrow="مسیرهای یادگیری"
-          title="هرجا هستی، از همان‌جا شروع کن."
-          text="از ساخت اولین بیت تا طراحی صدای شخصی؛ دوره‌ای را انتخاب کن که یک قدم واقعی جلوترت می‌برد."
+          eyebrow="شروع یادگیری"
+          title="یک دوره را انتخاب کن و مستقیم وارد ساختن شو."
+          text="همه دوره‌های این صفحه رایگان‌اند و هر قسمت با ویدئو، توضیح و تمرین مشخص ارائه می‌شود."
         />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {courses.map((course, index) => <CourseCard key={course.slug} course={course} index={index} />)}
+          {freeCourses.map((course, index) => <CourseCard key={course.slug} course={course} index={index} />)}
         </div>
       </section>
 

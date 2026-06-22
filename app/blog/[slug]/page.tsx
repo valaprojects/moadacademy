@@ -3,6 +3,7 @@ import { ArrowRight, Clock3, Lightbulb, Quote, Target } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ArticleReadingSidebar, { type ArticleSection } from "@/components/article-reading-sidebar";
+import ProductVideo from "@/components/product-video";
 import { articles } from "@/lib/data";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -32,6 +33,23 @@ export default async function ArticlePage({ params }: Props) {
             <div className="hero-grid absolute inset-0 opacity-20" /><div className="absolute -left-24 -top-32 size-96 rounded-full bg-[var(--acid)]/10 blur-3xl" />
             <div className="relative"><div className="flex items-center gap-3 text-[10px] text-[var(--acid)]"><span>{article.category}</span><span className="size-1 rounded-full bg-white/25" /><span className="flex items-center gap-1 text-white/45"><Clock3 className="size-3" />{article.readTime}</span></div><h1 className="mt-6 max-w-4xl text-3xl font-black leading-[1.55] tracking-[-.05em] sm:text-5xl">{article.title}</h1><p className="mt-5 max-w-3xl text-sm leading-8 text-white/50">{article.excerpt}</p></div>
           </header>
+
+          <div className="mt-5">
+            <ProductVideo
+              title={article.title}
+              accent="#baf451"
+              compact
+              titleTag="p"
+              menuLabel="بخش‌های مهم ویدئو"
+              timeline={article.timeline}
+              videos={[{
+                id: article.slug,
+                title: "نسخه ویدئویی این آموزش",
+                caption: article.excerpt,
+                src: article.videoSrc,
+              }]}
+            />
+          </div>
 
           <div className="px-1 py-8 text-sm leading-9 text-[var(--muted)] sm:px-6 lg:px-10">
             <section id="introduction" data-article-section className="scroll-mt-28"><span className="eyebrow">مقدمه</span><h2 className="text-2xl font-black text-[var(--foreground)]">قبل از هر ابزار، مسئله را درست ببین</h2><p className="mt-4">صدای خوب معمولاً نتیجه یک حرکت جادویی نیست؛ حاصل چند تصمیم کوچک است که در زمان درست گرفته می‌شوند. قبل از اینکه سراغ ابزار بعدی برویم، باید بفهمیم قطعه واقعاً چه چیزی کم دارد.</p><p className="mt-4">اگر مسئله را اشتباه تعریف کنیم، حتی بهترین پلاگین‌ها هم فقط ظاهر مشکل را تغییر می‌دهند. چند دقیقه فاصله گرفتن از پروژه و شنیدن آن با صدای کمتر، اغلب از ساعت‌ها دست‌کاری مفیدتر است.</p></section>
