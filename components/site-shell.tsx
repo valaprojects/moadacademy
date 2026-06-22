@@ -124,16 +124,16 @@ function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => 
         <Link onClick={onNavigate} href="/faq" className="side-sub-link"><CircleHelp className="size-4" /> سوالات متداول</Link>
       </nav>
 
-      <div className="mt-auto overflow-hidden rounded-[22px] bg-[var(--ink)] p-4 text-white">
+      <Link href="/consultation" onClick={onNavigate} className="group mt-auto block overflow-hidden rounded-[22px] bg-[var(--ink)] p-4 text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(186,244,81,.14)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acid)]">
         <div className="mb-4 flex items-center justify-between">
           <span className="grid size-9 place-items-center rounded-xl bg-[var(--acid)] text-[var(--ink)]"><Headphones className="size-4" /></span>
           <span className="text-[10px] text-white/45">پشتیبانی هنرمند</span>
         </div>
         <p className="text-sm font-extrabold">نمی‌دانی از کجا شروع کنی؟</p>
-        <Link href="/consultation" onClick={onNavigate} className="mt-3 flex items-center justify-between text-[11px] font-bold text-[var(--acid)]">
-          مشاوره انتخاب مسیر <ChevronLeft className="size-4" />
-        </Link>
-      </div>
+        <span className="mt-3 flex items-center justify-between text-[11px] font-bold text-[var(--acid)]">
+          مشاوره انتخاب مسیر <ChevronLeft className="size-4 transition-transform group-hover:-translate-x-1" />
+        </span>
+      </Link>
     </div>
   );
 }

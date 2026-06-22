@@ -29,20 +29,21 @@ export default function CartContent() {
     <div className="mt-8 grid gap-5 lg:grid-cols-[1fr_360px]">
       <div className="space-y-3">
         {lines.map(({ pack, quantity }) => (
-          <article key={pack.slug} className="flex flex-col gap-4 rounded-[24px] border border-black/6 bg-[var(--card)] p-3 sm:flex-row sm:items-center">
+          <article key={pack.slug} className="group relative flex flex-col gap-4 rounded-[24px] border border-black/6 bg-[var(--card)] p-3 transition hover:border-[#86ad49]/35 hover:shadow-[0_14px_40px_rgba(17,22,14,.06)] sm:flex-row sm:items-center">
+            <Link href={`/samples/${pack.slug}`} aria-label={`مشاهده ${pack.title}`} className="absolute inset-0 z-10 rounded-[24px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#7faa3e]" />
             <div className="grid aspect-square w-full shrink-0 place-items-center rounded-[19px] sm:w-28" style={{ background: pack.color, color: pack.accent }}>
               <span className="px-3 text-center text-[10px] font-black">{pack.title}</span>
             </div>
             <div className="flex-1">
-              <Link href={`/samples/${pack.slug}`} className="text-sm font-black">{pack.title}</Link>
+              <h3 className="text-sm font-black transition group-hover:text-[#527927]">{pack.title}</h3>
               <p className="mt-1 text-[10px] text-[var(--muted)]">{pack.genre}</p>
               <strong className="mt-3 block text-xs">{formatPrice(pack.price)}</strong>
             </div>
-            <div className="flex items-center justify-between gap-4">
+            <div className="relative z-20 flex items-center justify-between gap-4">
               <div className="flex items-center rounded-xl bg-[var(--soft)] p-1">
-                <button onClick={() => changeQuantity(pack.slug, 1)} className="grid size-8 place-items-center rounded-lg bg-[var(--card)]"><Plus className="size-3" /></button>
+                <button aria-label={`افزایش تعداد ${pack.title}`} onClick={() => changeQuantity(pack.slug, 1)} className="grid size-8 place-items-center rounded-lg bg-[var(--card)]"><Plus className="size-3" /></button>
                 <span className="w-8 text-center text-xs font-black">{quantity}</span>
-                <button onClick={() => changeQuantity(pack.slug, -1)} className="grid size-8 place-items-center rounded-lg bg-[var(--card)]"><Minus className="size-3" /></button>
+                <button aria-label={`کاهش تعداد ${pack.title}`} onClick={() => changeQuantity(pack.slug, -1)} className="grid size-8 place-items-center rounded-lg bg-[var(--card)]"><Minus className="size-3" /></button>
               </div>
               <button onClick={() => removeFromCart(pack.slug)} className="grid size-10 place-items-center rounded-xl text-red-500 transition hover:bg-red-50" aria-label="حذف"><Trash2 className="size-4" /></button>
             </div>
