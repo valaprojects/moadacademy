@@ -13,6 +13,7 @@ import {
   VolumeX,
 } from "lucide-react";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 
 export type PlayerVideo = {
   id: string;
@@ -71,26 +72,47 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const volumeRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const closeMenu = (event: PointerEvent) => {
+    if (!menuOpen) return;
+    const closeMenu = (event: Event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest("[data-product-video-menu]")) return;
       if (!menuRef.current?.contains(event.target as Node)) {
         setMenuOpen(false);
         setMenuPinned(false);
       }
     };
     document.addEventListener("pointerdown", closeMenu);
-    return () => document.removeEventListener("pointerdown", closeMenu);
-  }, []);
+    document.addEventListener("touchstart", closeMenu);
+    document.addEventListener("mousedown", closeMenu);
+    return () => {
+      document.removeEventListener("pointerdown", closeMenu);
+      document.removeEventListener("touchstart", closeMenu);
+      document.removeEventListener("mousedown", closeMenu);
+    };
+  }, [menuOpen]);
+
+  useEffect(() => {
+    if (!volumeOpen) return;
+    const closeVolume = (event: Event) => {
+      if (!volumeRef.current?.contains(event.target as Node)) setVolumeOpen(false);
+    };
+    document.addEventListener("pointerdown", closeVolume);
+    document.addEventListener("touchstart", closeVolume);
+    document.addEventListener("mousedown", closeVolume);
+    return () => {
+      document.removeEventListener("pointerdown", closeVolume);
+      document.removeEventListener("touchstart", closeVolume);
+      document.removeEventListener("mousedown", closeVolume);
+    };
+  }, [volumeOpen]);
 
   useEffect(() => {
     const syncFullscreen = () => {
       const active = document.fullscreenElement === playerRef.current;
       setIsFullscreen(active);
-      if (!active) {
-        const orientation = screen.orientation as (ScreenOrientation & { unlock?: () => void }) | undefined;
-        orientation?.unlock?.();
-      }
     };
     document.addEventListener("fullscreenchange", syncFullscreen);
     return () => document.removeEventListener("fullscreenchange", syncFullscreen);
@@ -154,12 +176,6 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
 
   const isMobileViewport = () => window.matchMedia("(max-width: 639px)").matches;
 
-  const lockLandscape = async () => {
-    if (!window.matchMedia("(max-width: 768px)").matches) return;
-    const orientation = screen.orientation as (ScreenOrientation & { lock?: (orientation: "landscape") => Promise<void> }) | undefined;
-    await orientation?.lock?.("landscape").catch(() => undefined);
-  };
-
   const toggleFullscreen = async () => {
     const video = videoRef.current as (HTMLVideoElement & {
       webkitEnterFullscreen?: () => void;
@@ -172,9 +188,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
       } else if (video?.webkitDisplayingFullscreen && video.webkitExitFullscreen) {
         video.webkitExitFullscreen();
       } else if (playerRef.current) {
-        if (playerRef.current.requestFullscreen) {
+        if (isMobileViewport() && video?.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
+        } else if (playerRef.current.requestFullscreen) {
           await playerRef.current.requestFullscreen();
-          await lockLandscape();
         } else if (video?.webkitEnterFullscreen) {
           video.webkitEnterFullscreen();
         }
@@ -199,10 +216,54 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
     "--range-accent": accent,
     background: `linear-gradient(to right, ${accent} ${volumePercent}%, rgba(255,255,255,.18) ${volumePercent}%)`,
   } as CSSProperties;
+  const portalTarget = typeof document === "undefined" ? null : document.body;
   const activeTimelineId = timeline.reduce((activeId, point) => currentTime >= point.time ? point.id : activeId, timeline[0]?.id ?? "");
+  const menuContent = (
+    <>
+      <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-white/18 sm:hidden" />
+      <div className="hidden px-2 pb-2 pt-1 text-[9px] font-bold text-white/35 sm:block">{timeline.length ? "برای پرش، یکی از بخش‌های مهم را انتخاب کن" : "برای پخش، یک ویدئو را انتخاب کن"}</div>
+      {timeline.length > 0 ? timeline.map((point, index) => {
+        const selected = point.id === activeTimelineId;
+        return (
+          <button
+            key={point.id}
+            type="button"
+            role="menuitem"
+            onClick={() => selectTimeline(point)}
+            className={`group/item flex w-full items-center gap-2 rounded-[15px] p-1.5 text-right transition sm:gap-3 sm:rounded-[16px] sm:p-2.5 ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
+          >
+            <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/7 font-mono text-[9px] sm:size-11 sm:text-[10px]" dir="ltr" style={{ color: selected ? accent : "rgba(255,255,255,.58)" }}>{formatFaTime(point.time)}</span>
+            <span className="min-w-0 flex-1"><strong className="block truncate text-[10px] font-extrabold text-white sm:text-[11px]">{point.title}</strong><small className="mt-1 hidden text-[8px] text-white/38 sm:block">بخش {(index + 1).toLocaleString("fa-IR")} از ویدئو</small></span>
+            {selected ? <Check className="size-4 shrink-0" style={{ color: accent }} /> : <Play className="size-3.5 shrink-0 text-white/30" fill="currentColor" />}
+          </button>
+        );
+      }) : playlist.map((item, index) => {
+        const selected = item.id === activeVideo.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            role="menuitem"
+            onClick={() => selectVideo(item)}
+            className={`group/item flex w-full items-center gap-2 rounded-[15px] p-1.5 text-right transition sm:gap-3 sm:rounded-[16px] sm:p-2.5 ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
+          >
+            <span className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-white/7 sm:size-11">
+              <span className="absolute inset-0 bg-[radial-gradient(circle,rgba(186,244,81,.18),transparent_65%)]" />
+              <Play className="relative size-4" fill="currentColor" style={{ color: selected ? accent : "rgba(255,255,255,.65)" }} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <strong className="block truncate text-[10px] font-extrabold text-white sm:text-[11px]">{item.title}</strong>
+              <small className="mt-1 hidden truncate text-[8px] text-white/38 sm:block">{item.caption}</small>
+            </span>
+            {selected ? <Check className="size-4 shrink-0" style={{ color: accent }} /> : <span className="text-[9px] text-white/25">۰{index + 1}</span>}
+          </button>
+        );
+      })}
+    </>
+  );
 
   return (
-    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-[100dvh] rounded-none" : `${compact ? "aspect-video min-h-[210px] sm:min-h-0" : "h-[330px] sm:h-[390px] lg:h-[560px]"} rounded-[26px] sm:rounded-[32px]`}`}>
+    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-[100dvh] rounded-none" : `${compact ? "h-[220px] sm:aspect-video sm:h-auto sm:min-h-0" : "h-[330px] sm:h-[390px] lg:h-[560px]"} rounded-[26px] sm:rounded-[32px]`}`}>
       <video
         ref={videoRef}
         src={activeVideo.src}
@@ -222,27 +283,37 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(6,8,6,.16),rgba(6,8,6,.2)_45%,rgba(6,8,6,.9))]" />
       <div className="hero-grid pointer-events-none absolute inset-0 opacity-15" />
-      <AnimatePresence>
+      {portalTarget && createPortal(<AnimatePresence>
         {menuOpen && (
-          <motion.button
-            type="button"
-            aria-label="بستن لیست ویدئو"
-            className="fixed inset-0 z-[88] bg-black/35 backdrop-blur-[2px] sm:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => {
-              setMenuOpen(false);
-              setMenuPinned(false);
-            }}
-          />
+          <>
+            <motion.div
+              aria-hidden="true"
+              className="pointer-events-none fixed inset-0 z-[72] bg-black/35 backdrop-blur-[2px] sm:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <motion.div
+              role="menu"
+              aria-label={menuLabel}
+              data-product-video-menu
+              initial={{ opacity: 0, y: 18, scale: .98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 14, scale: .985 }}
+              transition={{ duration: .18, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+.75rem)] z-[74] max-h-[46dvh] overflow-y-auto overscroll-contain rounded-[26px] border border-white/10 bg-[#10140f]/96 p-2 text-white shadow-[0_24px_70px_rgba(0,0,0,.55)] backdrop-blur-2xl sm:hidden"
+            >
+              {menuContent}
+            </motion.div>
+          </>
         )}
-      </AnimatePresence>
+      </AnimatePresence>, portalTarget)}
 
       {(timeline.length > 0 || playlist.length > 1) && <div
         ref={menuRef}
-        className="absolute right-3 top-3 z-[90] sm:right-6 sm:top-6"
-        onMouseEnter={() => setMenuOpen(true)}
+        data-product-video-menu
+        className="absolute right-3 top-3 z-30 sm:right-6 sm:top-6"
+        onMouseEnter={() => { if (!isMobileViewport()) setMenuOpen(true); }}
         onMouseLeave={() => { if (!menuPinned) setMenuOpen(false); }}
       >
         <button
@@ -269,47 +340,9 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -5, scale: .985 }}
               transition={{ duration: .18, ease: [0.22, 1, 0.36, 1] }}
-              className="fixed inset-x-3 bottom-3 top-auto z-[95] max-h-[46dvh] w-auto overflow-y-auto rounded-[26px] border border-white/10 bg-[#10140f]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,.55)] backdrop-blur-2xl sm:absolute sm:inset-auto sm:right-0 sm:top-[calc(100%+8px)] sm:max-h-[56dvh] sm:w-[min(92vw,320px)] sm:rounded-[22px]"
+              className="hidden sm:absolute sm:inset-auto sm:right-0 sm:top-[calc(100%+8px)] sm:block sm:max-h-[56dvh] sm:w-[min(92vw,320px)] sm:overflow-y-auto sm:rounded-[22px] sm:border sm:border-white/10 sm:bg-[#10140f]/95 sm:p-2 sm:shadow-[0_24px_70px_rgba(0,0,0,.48)] sm:backdrop-blur-2xl"
             >
-              <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-white/18 sm:hidden" />
-              <div className="hidden px-2 pb-2 pt-1 text-[9px] font-bold text-white/35 sm:block">{timeline.length ? "برای پرش، یکی از بخش‌های مهم را انتخاب کن" : "برای پخش، یک ویدئو را انتخاب کن"}</div>
-              {timeline.length > 0 ? timeline.map((point, index) => {
-                const selected = point.id === activeTimelineId;
-                return (
-                  <button
-                    key={point.id}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => selectTimeline(point)}
-                    className={`group/item flex w-full items-center gap-2 rounded-[15px] p-1.5 text-right transition sm:gap-3 sm:rounded-[16px] sm:p-2.5 ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
-                  >
-                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/7 font-mono text-[9px] sm:size-11 sm:text-[10px]" dir="ltr" style={{ color: selected ? accent : "rgba(255,255,255,.58)" }}>{formatFaTime(point.time)}</span>
-                    <span className="min-w-0 flex-1"><strong className="block truncate text-[10px] font-extrabold text-white sm:text-[11px]">{point.title}</strong><small className="mt-1 hidden text-[8px] text-white/38 sm:block">بخش {(index + 1).toLocaleString("fa-IR")} از ویدئو</small></span>
-                    {selected ? <Check className="size-4 shrink-0" style={{ color: accent }} /> : <Play className="size-3.5 shrink-0 text-white/30" fill="currentColor" />}
-                  </button>
-                );
-              }) : playlist.map((item, index) => {
-                const selected = item.id === activeVideo.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => selectVideo(item)}
-                    className={`group/item flex w-full items-center gap-2 rounded-[15px] p-1.5 text-right transition sm:gap-3 sm:rounded-[16px] sm:p-2.5 ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
-                  >
-                    <span className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-white/7 sm:size-11">
-                      <span className="absolute inset-0 bg-[radial-gradient(circle,rgba(186,244,81,.18),transparent_65%)]" />
-                      <Play className="relative size-4" fill="currentColor" style={{ color: selected ? accent : "rgba(255,255,255,.65)" }} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <strong className="block truncate text-[10px] font-extrabold text-white sm:text-[11px]">{item.title}</strong>
-                      <small className="mt-1 hidden truncate text-[8px] text-white/38 sm:block">{item.caption}</small>
-                    </span>
-                    {selected ? <Check className="size-4 shrink-0" style={{ color: accent }} /> : <span className="text-[9px] text-white/25">۰{index + 1}</span>}
-                  </button>
-                );
-              })}
+              {menuContent}
             </motion.div>
           )}
         </AnimatePresence>
@@ -354,7 +387,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
             dir="ltr"
           />
           <span className="min-w-[56px] shrink-0 text-center font-mono text-[8px] text-white/55 sm:min-w-[64px] sm:text-[9px]" dir="ltr">{formatTime(currentTime)} / {formatTime(duration)}</span>
-          <div className="relative shrink-0">
+          <div ref={volumeRef} className="relative shrink-0">
             <button
               type="button"
               onClick={() => {
@@ -377,7 +410,13 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 6, scale: .96 }}
                   transition={{ duration: .18, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute bottom-11 left-1/2 z-30 flex h-36 w-14 -translate-x-1/2 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/80 p-2 shadow-2xl backdrop-blur-xl sm:hidden"
+                  className="absolute bottom-11 left-1/2 z-30 flex h-36 w-14 -translate-x-1/2 touch-none flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/80 p-2 shadow-2xl backdrop-blur-xl sm:hidden"
+                  onPointerDown={(event) => event.stopPropagation()}
+                  onTouchStart={(event) => event.stopPropagation()}
+                  onTouchMove={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                  }}
                 >
                   <span className="font-mono text-[9px] text-white/60">{volumePercent.toLocaleString("fa-IR")}٪</span>
                   <div className="relative flex h-24 w-8 items-center justify-center">
@@ -387,6 +426,15 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
                       max="1"
                       step="0.05"
                       value={audibleVolume}
+                      onPointerDown={(event) => {
+                        event.stopPropagation();
+                        event.currentTarget.setPointerCapture?.(event.pointerId);
+                      }}
+                      onTouchStart={(event) => event.stopPropagation()}
+                      onTouchMove={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                      }}
                       onChange={(event) => {
                         const nextVolume = Number(event.target.value);
                         if (videoRef.current) { videoRef.current.volume = nextVolume; videoRef.current.muted = false; }

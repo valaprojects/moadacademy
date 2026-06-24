@@ -103,19 +103,18 @@ function TelegramIcon({ className = "size-5" }: { className?: string }) {
 
 function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => void; onSearch?: () => void; theme?: "light" | "dark"; onTheme?: () => void }) {
   return (
-    <div className="flex min-h-full flex-col p-5">
-      <div className="mb-5 pr-1 lg:mb-8"><Brand /></div>
-      <div className="mb-6 grid grid-cols-2 gap-2 lg:hidden">
+    <div className="flex min-h-full flex-col py-3.5 pr-3.5 lg:p-5">
+      <div className="mb-4 pr-1 lg:mb-8"><Brand /></div>
+      <div className="mb-4 grid grid-cols-[minmax(0,1fr)_2.75rem] gap-2 lg:hidden">
         <button onClick={onSearch} className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-black/7 bg-[var(--soft)] text-[11px] font-extrabold text-[var(--foreground)]">
           <Search className="size-4" /> جستجو
         </button>
-        <button onClick={onTheme} className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-black/7 bg-[var(--soft)] text-[11px] font-extrabold text-[var(--foreground)]">
+        <button onClick={onTheme} className="grid size-11 place-items-center rounded-2xl border border-black/7 bg-[var(--soft)] text-[var(--foreground)]" aria-label={theme === "dark" ? "تم روشن" : "تم تیره"}>
           {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
-          {theme === "dark" ? "تم روشن" : "تم تیره"}
         </button>
       </div>
 
-      <nav className="mb-5 space-y-1.5 lg:hidden">
+      <nav className="mb-3 space-y-1 lg:hidden">
         <Link onClick={onNavigate} href="/" className="side-sub-link"><Home className="size-4" /> خانه</Link>
         <Link onClick={onNavigate} href="/shop" className="side-sub-link"><AudioWaveform className="size-4" /> محصولات</Link>
         <Link onClick={onNavigate} href="/courses" className="side-sub-link"><GraduationCap className="size-4" /> دوره‌های رایگان</Link>
@@ -144,14 +143,14 @@ function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => 
         ))}
       </nav>
 
-      <div className="my-5 h-px bg-black/6" />
+      <div className="mb-3 mt-auto h-px bg-black/6 lg:my-5" />
       <nav className="space-y-1 text-[13px] font-semibold text-[var(--muted)]">
         <Link onClick={onNavigate} href="/about" className="side-sub-link"><Users className="size-4" /> درباره ما</Link>
         <Link onClick={onNavigate} href="/contact" className="side-sub-link"><MessageCircle className="size-4" /> تماس با ما</Link>
         <Link onClick={onNavigate} href="/faq" className="side-sub-link"><CircleHelp className="size-4" /> سوالات متداول</Link>
       </nav>
 
-      <Link href="/consultation" onClick={onNavigate} className="group mt-auto block overflow-hidden rounded-[22px] bg-[var(--ink)] p-4 text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(186,244,81,.14)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acid)]">
+      <Link href="/consultation" onClick={onNavigate} className="group mt-3 block overflow-hidden rounded-[22px] bg-[var(--ink)] p-4 text-white transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_28px_rgba(186,244,81,.14)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--acid)]">
         <div className="mb-4 flex items-center justify-between">
           <span className="grid size-9 place-items-center rounded-xl bg-[var(--acid)] text-[var(--ink)]"><Headphones className="size-4" /></span>
           <span className="text-[10px] text-white/45">پشتیبانی هنرمند</span>
@@ -307,12 +306,12 @@ function Header({ onMenu, onSearch, theme, onTheme }: { onMenu: () => void; onSe
           <span className="mr-auto rounded-lg bg-[var(--soft)] px-2 py-1 font-mono text-[9px]">⌘ K</span>
         </button>
         <div className="mr-auto flex items-center gap-2 lg:mr-0">
-          <Link href="/account" className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="پنل کاربری">
-            <Users className="size-5" />
-          </Link>
           <Link href="/cart" className="relative grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="سبد خرید">
             <ShoppingBag className="size-5" />
             {count > 0 && <span className="absolute -left-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--acid)] text-[9px] font-black text-[var(--ink)]">{count}</span>}
+          </Link>
+          <Link href="/account" className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="پنل کاربری">
+            <Users className="size-5" />
           </Link>
         </div>
         <button onClick={onTheme} className="hidden size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5 lg:grid" aria-label={theme === "dark" ? "فعال‌کردن تم روشن" : "فعال‌کردن تم تیره"} title={theme === "dark" ? "تم روشن" : "تم تیره"}>{theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>
@@ -328,7 +327,7 @@ function Footer() {
         <div>
           <div className="flex items-center gap-3 text-[var(--acid)]"><AudioWaveform className="size-7" /><strong className="text-xl">موآد استودیو</strong></div>
           <p className="mt-5 max-w-md text-sm leading-8 text-white/55">خانه‌ی صداهای تازه و آموزش‌های بی‌حاشیه برای موزیسین‌هایی که می‌خواهند هر قطعه، یک قدم به امضای شخصی‌شان نزدیک‌تر باشد.</p>
-          <div className="mt-6 flex flex-wrap gap-2">
+          <div className="mt-6 grid grid-cols-4 gap-2 sm:flex sm:flex-wrap">
             <a href="#" className="social-button" aria-label="اینستاگرام"><InstagramIcon className="size-6" /></a>
             <a href="#" className="social-button" aria-label="تلگرام"><TelegramIcon className="size-6" /></a>
             <a
@@ -415,7 +414,7 @@ export default function SiteShell({ children }: { children: ReactNode }) {
         <Footer />
       </div>
       <AnimatePresence>
-        {drawer && <motion.div className="fixed inset-0 z-[80] bg-black/55 backdrop-blur-sm lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)}><motion.aside className="absolute inset-y-2 right-2 w-[min(88vw,320px)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-[28px] bg-white" initial={{ x: 350 }} animate={{ x: 0 }} exit={{ x: 350 }} transition={{ type: "spring", damping: 28, stiffness: 260 }} onClick={(event) => event.stopPropagation()}><button onClick={() => setDrawer(false)} className="sticky left-4 top-4 z-10 float-left grid size-9 place-items-center rounded-xl bg-[var(--soft)] shadow-sm" aria-label="بستن منو"><X className="size-4" /></button><Sidebar onNavigate={() => setDrawer(false)} onSearch={() => { setDrawer(false); setSearch(true); }} theme={theme} onTheme={toggleTheme} /></motion.aside></motion.div>}
+        {drawer && <motion.div className="fixed inset-0 z-[80] bg-black/55 backdrop-blur-sm lg:hidden" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setDrawer(false)}><motion.aside className="absolute inset-y-2 right-2 w-[min(calc(100vw-1rem),340px)] overflow-x-hidden overflow-y-auto overscroll-contain rounded-[28px] bg-white" initial={{ x: 350 }} animate={{ x: 0 }} exit={{ x: 350 }} transition={{ type: "spring", damping: 28, stiffness: 260 }} onClick={(event) => event.stopPropagation()}><button onClick={() => setDrawer(false)} className="sticky left-4 top-4 z-10 float-left grid size-9 place-items-center rounded-xl bg-[var(--soft)] shadow-sm" aria-label="بستن منو"><X className="size-4" /></button><Sidebar onNavigate={() => setDrawer(false)} onSearch={() => { setDrawer(false); setSearch(true); }} theme={theme} onTheme={toggleTheme} /></motion.aside></motion.div>}
       </AnimatePresence>
       <SearchDialog open={search} close={() => setSearch(false)} />
     </ShopContext.Provider>

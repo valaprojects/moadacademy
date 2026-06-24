@@ -34,6 +34,7 @@ button { cursor: pointer; }
   border-radius: 999px;
   outline: none;
   cursor: pointer;
+  touch-action: none;
 }
 .product-video-range::-webkit-slider-thumb {
   width: 13px;
@@ -68,7 +69,7 @@ a { text-decoration: none; }
   .primary-button { @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-5 text-xs font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-[var(--forest)]; }
   .secondary-button { @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-black/8 px-5 text-xs font-extrabold text-[var(--foreground)] transition hover:-translate-y-0.5 hover:border-black/15; background-color: var(--card); }
   .side-sub-link { @apply flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-[var(--soft)] hover:text-[var(--foreground)]; }
-  .social-button { @apply grid size-14 place-items-center rounded-2xl border border-white/10 bg-white/5 text-[var(--acid)] transition hover:border-[var(--acid)] hover:bg-[var(--acid)] hover:text-[var(--ink)]; }
+  .social-button { @apply grid h-14 w-full place-items-center rounded-2xl border border-white/10 bg-white/5 text-[var(--acid)] transition hover:border-[var(--acid)] hover:bg-[var(--acid)] hover:text-[var(--ink)] sm:size-14 sm:w-14; }
   .social-button svg { @apply size-6; }
   .social-button:hover svg {
     color: var(--ink);

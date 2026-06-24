@@ -55,7 +55,10 @@ export default function CourseLearning({ course, activeChapterId, activeLessonId
           return (
             <section key={chapter.id} className={`overflow-hidden rounded-2xl border transition ${open ? "border-[#87b248]/25 bg-[var(--soft)]" : "border-transparent bg-[var(--soft)]/60"}`}>
               <div className="flex items-center gap-1 px-2 py-2">
-                <Link href={`/courses/${course.slug}/${chapter.id}`} aria-current={chapterActive && !activeLesson ? "page" : undefined} className={`min-w-0 flex-1 rounded-xl px-2 py-2 text-right transition ${chapterActive && !activeLesson ? "bg-[var(--acid)] text-[var(--ink)]" : "hover:bg-[var(--card)]"}`}>
+                <button type="button" aria-current={chapterActive && !activeLesson ? "page" : undefined} aria-expanded={open} onClick={() => setOpenChapterId(open ? null : chapter.id)} className={`min-w-0 flex-1 rounded-xl px-2 py-2 text-right transition lg:hidden ${chapterActive && !activeLesson ? "bg-[var(--acid)] text-[var(--ink)]" : "hover:bg-[var(--card)]"}`}>
+                  <small className={`block text-[8px] ${chapterActive && !activeLesson ? "text-black/55" : "text-[var(--muted)]"}`}>فصل {(chapterIndex + 1).toLocaleString("fa-IR")}</small><strong className="mt-1 block text-[10px] leading-5">{chapter.title}</strong>
+                </button>
+                <Link href={`/courses/${course.slug}/${chapter.id}`} aria-current={chapterActive && !activeLesson ? "page" : undefined} className={`hidden min-w-0 flex-1 rounded-xl px-2 py-2 text-right transition lg:block ${chapterActive && !activeLesson ? "bg-[var(--acid)] text-[var(--ink)]" : "hover:bg-[var(--card)]"}`}>
                   <small className={`block text-[8px] ${chapterActive && !activeLesson ? "text-black/55" : "text-[var(--muted)]"}`}>فصل {(chapterIndex + 1).toLocaleString("fa-IR")}</small><strong className="mt-1 block text-[10px] leading-5">{chapter.title}</strong>
                 </Link>
                 <button type="button" aria-label={`${open ? "بستن" : "بازکردن"} ${chapter.title}`} aria-expanded={open} onClick={() => setOpenChapterId(open ? null : chapter.id)} className="grid size-9 shrink-0 place-items-center rounded-xl text-[var(--muted)] transition hover:bg-[var(--card)] hover:text-[var(--foreground)]"><ChevronDown className={`size-4 transition-transform ${open ? "rotate-180" : ""}`} /></button>

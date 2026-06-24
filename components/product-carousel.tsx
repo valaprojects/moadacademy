@@ -47,8 +47,8 @@ export default function ProductCarousel({ items, label = "محصولات پیش�
         </div>
       </div>
 
-      <div ref={viewportRef} dir="rtl" className="-mx-1 flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-7 pt-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {items.map((pack, index) => <div key={pack.slug} data-carousel-card className="min-w-0 shrink-0 snap-start basis-[86%] sm:basis-[calc((100%-1rem)/2)] lg:basis-[calc((100%-2rem)/3)] xl:basis-[calc((100%-3rem)/4)]"><ProductCard pack={pack} index={index} /></div>)}
+      <div ref={viewportRef} dir="rtl" className="-mx-3 flex snap-x snap-mandatory gap-4 overflow-x-auto px-3 pb-7 pt-1 [scrollbar-width:none] sm:-mx-1 sm:px-1 [&::-webkit-scrollbar]:hidden">
+        {items.map((pack, index) => <div key={pack.slug} data-carousel-card className="min-w-0 shrink-0 snap-center basis-[84%] sm:snap-start sm:basis-[calc((100%-1rem)/2)] lg:basis-[calc((100%-2rem)/3)] xl:basis-[calc((100%-3rem)/4)]"><ProductCard pack={pack} index={index} /></div>)}
       </div>
     </div>
   );
