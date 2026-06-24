@@ -40,7 +40,43 @@ export function ArticleCards() {
 }
 
 export function Newsletter() {
-  return <Reveal><section className="relative overflow-hidden rounded-[32px] bg-[#13271b] px-6 py-10 text-white sm:px-10"><div className="hero-grid absolute inset-0 opacity-25" /><div className="absolute -left-20 -top-28 size-80 rounded-full border-[50px] border-[var(--acid)]/8" /><div className="relative grid items-center gap-8 lg:grid-cols-[1fr_1.1fr]"><div><span className="text-[10px] font-black text-[var(--acid)]">یادداشت‌های هفتگی موآد</span><h2 className="mt-3 text-2xl font-black leading-10">هر هفته یک ایده تازه<br />برای گوش‌های کنجکاو.</h2></div><div><p className="mb-4 text-xs leading-6 text-white/55">سمپل رایگان، تکنیک‌های کوتاه و خبر انتشارهای تازه. بدون ایمیل‌های بی‌مصرف.</p><form className="flex flex-col gap-2 sm:flex-row"><input className="h-13 flex-1 rounded-2xl border border-white/10 bg-white/8 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-[var(--acid)]/50" placeholder="ایمیل شما" type="email" /><button type="submit" className="h-13 rounded-2xl bg-[var(--acid)] px-6 text-xs font-black text-[var(--ink)] transition hover:shadow-[0_0_28px_rgba(186,244,81,.3)]">عضویت در خبرنامه</button></form></div></div></section></Reveal>;
+  return (
+    <Reveal>
+      <section className="relative overflow-hidden rounded-[28px] bg-[#13271b] px-4 py-8 text-white sm:rounded-[32px] sm:px-10 sm:py-10">
+        <div className="hero-grid absolute inset-0 opacity-25" />
+        <div className="absolute -left-20 -top-28 size-80 rounded-full border-[50px] border-[var(--acid)]/8" />
+        <div className="relative grid items-center gap-6 lg:grid-cols-[1fr_1.1fr] lg:gap-8">
+          <div>
+            <span className="text-[10px] font-black text-[var(--acid)]">یادداشت‌های هفتگی موآد</span>
+            <h2 className="mt-3 text-[1.35rem] font-black leading-9 sm:text-2xl sm:leading-10">
+              هر هفته یک ایده تازه
+              <br />
+              برای گوش‌های کنجکاو.
+            </h2>
+          </div>
+          <div>
+            <p className="mb-4 text-[11px] leading-6 text-white/55 sm:text-xs">
+              سمپل رایگان، تکنیک‌های کوتاه و خبر انتشارهای تازه. بدون ایمیل‌های بی‌مصرف.
+            </p>
+            <form className="rounded-[22px] border border-white/10 bg-black/18 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,.04)] backdrop-blur-sm sm:flex sm:items-center sm:gap-2 sm:rounded-2xl sm:bg-white/6">
+              <input
+                className="h-13 w-full min-w-0 rounded-2xl border border-white/10 bg-white/10 px-4 text-right text-[16px] font-medium text-white outline-none transition placeholder:text-white/42 focus:border-[var(--acid)]/55 focus:bg-white/12 sm:h-12 sm:flex-1 sm:border-0 sm:bg-transparent sm:text-sm sm:focus:bg-transparent"
+                placeholder="ایمیل شما"
+                type="email"
+                dir="rtl"
+              />
+              <button
+                type="submit"
+                className="mt-2 h-12 w-full rounded-2xl bg-[var(--acid)] px-5 text-[11px] font-black text-[var(--ink)] transition hover:shadow-[0_0_28px_rgba(186,244,81,.3)] sm:mt-0 sm:w-auto sm:px-6 sm:text-xs"
+              >
+                عضویت در خبرنامه
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </Reveal>
+  );
 }
 
 export function FeatureStrip() {

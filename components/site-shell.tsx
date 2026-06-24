@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   createContext,
@@ -297,6 +298,24 @@ function Footer() {
           <div className="flex items-center gap-3 text-[var(--acid)]"><AudioWaveform className="size-7" /><strong className="text-xl">موآد استودیو</strong></div>
           <p className="mt-5 max-w-md text-sm leading-8 text-white/55">خانه‌ی صداهای تازه و آموزش‌های بی‌حاشیه برای موزیسین‌هایی که می‌خواهند هر قطعه، یک قدم به امضای شخصی‌شان نزدیک‌تر باشد.</p>
           <div className="mt-6 flex gap-2"><a href="#" className="social-button" aria-label="اینستاگرام"><Camera /></a><a href="#" className="social-button" aria-label="ویدیوها"><Video /></a><a href="#" className="social-button" aria-label="تلگرام"><Send /></a></div>
+          <a
+            referrerPolicy="origin"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://trustseal.enamad.ir/?id=740856&Code=dXrKi2eoAQJbPDXYf6sAtX22yl7TGpFN"
+            className="mt-6 inline-flex w-fit items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 transition hover:border-[var(--acid)] hover:bg-white/10"
+            aria-label="نماد اعتماد الکترونیکی موآد استودیو"
+          >
+            <Image
+              src="/images/enamad-trust.png"
+              alt="نماد اعتماد الکترونیکی"
+              width={72}
+              height={72}
+              className="h-16 w-16 object-contain"
+              style={{ cursor: "pointer" }}
+            />
+            <span className="hidden text-[10px] font-bold leading-5 text-white/45 sm:block">نماد اعتماد<br />موآد استودیو</span>
+          </a>
           <div className="mt-7 grid grid-cols-4 gap-2 md:hidden">
             <Link href="/shop" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><ShoppingBag className="size-4 text-[var(--acid)]" />محصولات</Link>
             <Link href="/courses" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><GraduationCap className="size-4 text-[var(--acid)]" />دوره رایگان</Link>

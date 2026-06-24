@@ -82,7 +82,14 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   }, []);
 
   useEffect(() => {
-    const syncFullscreen = () => setIsFullscreen(document.fullscreenElement === playerRef.current);
+    const syncFullscreen = () => {
+      const active = document.fullscreenElement === playerRef.current;
+      setIsFullscreen(active);
+      if (!active) {
+        const orientation = screen.orientation as ScreenOrientation & { unlock?: () => void };
+        orientation.unlock?.();
+      }
+    };
     document.addEventListener("fullscreenchange", syncFullscreen);
     return () => document.removeEventListener("fullscreenchange", syncFullscreen);
   }, []);
@@ -137,6 +144,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
         await document.exitFullscreen();
       } else if (playerRef.current) {
         await playerRef.current.requestFullscreen();
+        if (window.matchMedia("(max-width: 768px)").matches) {
+          const orientation = screen.orientation as ScreenOrientation & { lock?: (orientation: "landscape") => Promise<void> };
+          await orientation.lock?.("landscape").catch(() => undefined);
+        }
       }
     } catch {
       setIsFullscreen(document.fullscreenElement === playerRef.current);
@@ -157,7 +168,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   const activeTimelineId = timeline.reduce((activeId, point) => currentTime >= point.time ? point.id : activeId, timeline[0]?.id ?? "");
 
   return (
-    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-screen rounded-none" : `${compact ? "aspect-video" : "h-[390px] lg:h-[560px]"} rounded-[32px]`}`}>
+    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-[100dvh] rounded-none" : `${compact ? "aspect-video min-h-[210px] sm:min-h-0" : "h-[330px] sm:h-[390px] lg:h-[560px]"} rounded-[26px] sm:rounded-[32px]`}`}>
       <video
         ref={videoRef}
         src={activeVideo.src}
@@ -180,7 +191,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
 
       {(timeline.length > 0 || playlist.length > 1) && <div
         ref={menuRef}
-        className="absolute right-5 top-5 z-30 sm:right-6 sm:top-6"
+        className="absolute right-3 top-3 z-30 sm:right-6 sm:top-6"
         onMouseEnter={() => setMenuOpen(true)}
         onMouseLeave={() => { if (!menuPinned) setMenuOpen(false); }}
       >
@@ -193,10 +204,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
             setMenuOpen(nextOpen);
             setMenuPinned(nextOpen);
           }}
-          className="flex h-10 items-center gap-2 rounded-full border border-white/12 bg-black/35 px-4 text-[10px] font-extrabold text-white shadow-lg backdrop-blur-xl transition hover:border-white/25 hover:bg-black/55"
+          className="flex h-9 max-w-[calc(100vw-1.5rem)] items-center gap-1.5 rounded-full border border-white/12 bg-black/35 px-3 text-[9px] font-extrabold text-white shadow-lg backdrop-blur-xl transition hover:border-white/25 hover:bg-black/55 sm:h-10 sm:gap-2 sm:px-4 sm:text-[10px]"
         >
-          <ListVideo className="size-4" style={{ color: accent }} />
-          {menuLabel}
+          <ListVideo className="size-3.5 shrink-0 sm:size-4" style={{ color: accent }} />
+          <span className="truncate">{menuLabel}</span>
           <ChevronDown className={`size-3.5 text-white/45 transition-transform ${menuOpen ? "rotate-180" : ""}`} />
         </button>
         <AnimatePresence>
@@ -208,7 +219,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -5, scale: .985 }}
               transition={{ duration: .18, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-0 top-[calc(100%+8px)] w-[min(82vw,320px)] overflow-hidden rounded-[22px] border border-white/10 bg-[#10140f]/95 p-2 shadow-[0_24px_70px_rgba(0,0,0,.48)] backdrop-blur-2xl"
+              className="absolute right-0 top-[calc(100%+8px)] max-h-[56dvh] w-[min(92vw,320px)] overflow-y-auto rounded-[22px] border border-white/10 bg-[#10140f]/95 p-2 shadow-[0_24px_70px_rgba(0,0,0,.48)] backdrop-blur-2xl"
             >
               <div className="px-2 pb-2 pt-1 text-[9px] font-bold text-white/35">{timeline.length ? "برای پرش، یکی از بخش‌های مهم را انتخاب کن" : "برای پخش، یک ویدئو را انتخاب کن"}</div>
               {timeline.length > 0 ? timeline.map((point, index) => {
@@ -266,13 +277,13 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
         </motion.button>
       )}
 
-      <div className="absolute inset-x-4 bottom-4 z-20 sm:inset-x-6 sm:bottom-6">
+      <div className="absolute inset-x-3 bottom-3 z-20 sm:inset-x-6 sm:bottom-6">
         {showTitleOverlay && <div className="mb-3 px-1">
           <span className="text-[9px] text-white/45">{activeVideo.title}</span>
           {titleTag === "h1" ? <h1 className="mt-1 text-2xl font-black sm:text-4xl">{title}</h1> : <p className="mt-1 text-xl font-black sm:text-3xl">{title}</p>}
         </div>}
-        <div className="flex items-center gap-2.5 rounded-[20px] border border-white/10 bg-black/55 p-2.5 shadow-2xl backdrop-blur-xl sm:gap-3 sm:px-3">
-          <button type="button" onClick={togglePlay} className="grid size-9 shrink-0 place-items-center rounded-xl text-[var(--ink)] transition hover:scale-105" style={{ background: accent }} aria-label={playing ? "توقف ویدئو" : "پخش ویدئو"}>
+        <div className="flex flex-wrap items-center gap-2 rounded-[18px] border border-white/10 bg-black/55 p-2 shadow-2xl backdrop-blur-xl sm:flex-nowrap sm:gap-3 sm:rounded-[20px] sm:px-3">
+          <button type="button" onClick={togglePlay} className="grid size-8 shrink-0 place-items-center rounded-xl text-[var(--ink)] transition hover:scale-105 sm:size-9" style={{ background: accent }} aria-label={playing ? "توقف ویدئو" : "پخش ویدئو"}>
             {playing ? <Pause className="size-4" fill="currentColor" /> : <Play className="mr-0.5 size-4" fill="currentColor" />}
           </button>
           <input
@@ -286,16 +297,16 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               if (videoRef.current) videoRef.current.currentTime = nextTime;
               setCurrentTime(nextTime);
             }}
-            className="product-video-range min-w-0 flex-1"
+            className="product-video-range min-w-0 flex-1 basis-[calc(100%-96px)] sm:basis-auto"
             style={rangeStyle}
             aria-label="زمان ویدئو"
             dir="ltr"
           />
-          <span className="hidden min-w-[68px] text-center font-mono text-[9px] text-white/55 sm:block" dir="ltr">{formatTime(currentTime)} / {formatTime(duration)}</span>
+          <span className="order-5 min-w-[64px] text-center font-mono text-[9px] text-white/55 sm:order-none" dir="ltr">{formatTime(currentTime)} / {formatTime(duration)}</span>
           <button
             type="button"
             onClick={() => { if (videoRef.current) videoRef.current.muted = !muted; }}
-            className="grid size-9 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white"
+            className="order-6 grid size-8 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white sm:order-none sm:size-9"
             aria-label={muted ? "فعال‌کردن صدا" : "بی‌صداکردن"}
           >
             {muted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
@@ -310,14 +321,14 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               const nextVolume = Number(event.target.value);
               if (videoRef.current) { videoRef.current.volume = nextVolume; videoRef.current.muted = false; }
             }}
-            className="product-video-range hidden w-20 sm:block"
+            className="product-video-range order-7 w-24 flex-1 sm:order-none sm:w-20 sm:flex-none"
             style={volumeStyle}
             aria-label="میزان صدا"
             aria-valuetext={`${volumePercent.toLocaleString("fa-IR")} درصد`}
             dir="ltr"
           />
-          <span className="hidden min-w-8 text-center font-mono text-[9px] text-white/55 sm:block" dir="rtl">{volumePercent.toLocaleString("fa-IR")}٪</span>
-          <button type="button" onClick={toggleFullscreen} className="grid size-9 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white" aria-label={isFullscreen ? "کوچک‌کردن ویدئو" : "نمایش تمام‌صفحه"}>
+          <span className="order-8 min-w-8 text-center font-mono text-[9px] text-white/55 sm:order-none" dir="rtl">{volumePercent.toLocaleString("fa-IR")}٪</span>
+          <button type="button" onClick={toggleFullscreen} className="grid size-8 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white sm:size-9" aria-label={isFullscreen ? "کوچک‌کردن ویدئو" : "نمایش تمام‌صفحه"}>
             {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
         </div>

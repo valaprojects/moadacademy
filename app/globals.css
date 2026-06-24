@@ -149,3 +149,48 @@ button[aria-label="افزودن به سبد"]:has(.lucide-check) {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+@media (max-width: 639px) {
+  body {
+    font-size: 14px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .page-wrap {
+    padding-inline: .75rem;
+  }
+  .section-space {
+    margin-top: 3.5rem;
+  }
+  .eyebrow {
+    margin-bottom: .75rem;
+    padding: .38rem .65rem;
+    font-size: 9px;
+  }
+  .primary-button,
+  .secondary-button {
+    min-height: 2.75rem;
+    height: auto;
+    border-radius: .95rem;
+    padding-inline: 1rem;
+    font-size: 11px;
+  }
+  input,
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+  textarea,
+  select {
+    min-height: 3.25rem;
+    width: 100%;
+    line-height: 1.45;
+  }
+  .form-input {
+    min-height: 3.25rem;
+    border-radius: 1rem;
+  }
+  .neon-hover:hover {
+    transform: none;
+  }
+}

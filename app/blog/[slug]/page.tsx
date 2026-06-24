@@ -24,7 +24,7 @@ export default async function ArticlePage({ params }: Props) {
   ];
 
   return (
-    <div className="page-wrap pb-16">
+    <div className="page-wrap pb-28 lg:pb-16">
       <Link href="/blog" className="mb-5 mt-8 flex w-fit items-center gap-2 text-[10px] font-bold text-[var(--muted)]"><ArrowRight className="size-3" />بازگشت به مجله</Link>
       <div className="grid items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[310px_minmax(0,1fr)]">
         <ArticleReadingSidebar sections={sections} relatedArticles={articles.filter((item) => item.series === article.series)} currentSlug={article.slug} />

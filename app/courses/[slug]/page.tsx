@@ -23,7 +23,7 @@ export default async function CoursePage({ params }: Props) {
   if (!course) notFound();
 
   return (
-    <div className="page-wrap pb-16">
+    <div className="page-wrap pb-28 lg:pb-16">
       <div className="mb-5 mt-7 flex items-center gap-2 text-[10px] text-[var(--muted)]">
         <Link href="/courses">دوره های رایگان</Link><ChevronLeft className="size-3" /><span>{course.title}</span>
       </div>
