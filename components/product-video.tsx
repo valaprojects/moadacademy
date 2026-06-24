@@ -12,7 +12,7 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type TouchEvent as ReactTouchEvent } from "react";
 import { createPortal } from "react-dom";
 
 export type PlayerVideo = {
@@ -73,6 +73,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   const playerRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const volumeRef = useRef<HTMLDivElement>(null);
+  const volumeTrackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -176,6 +177,44 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
 
   const isMobileViewport = () => window.matchMedia("(max-width: 639px)").matches;
 
+  const setVideoVolume = (nextVolume: number) => {
+    const clampedVolume = Math.min(1, Math.max(0, nextVolume));
+    if (videoRef.current) {
+      videoRef.current.volume = clampedVolume;
+      videoRef.current.muted = clampedVolume === 0;
+    }
+    setVolume(clampedVolume);
+    setMuted(clampedVolume === 0);
+  };
+
+  const updateVolumeFromClientY = (clientY: number) => {
+    const rect = volumeTrackRef.current?.getBoundingClientRect();
+    if (!rect?.height) return;
+    setVideoVolume((rect.bottom - clientY) / rect.height);
+  };
+
+  const handleVolumePointer = (event: ReactPointerEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    updateVolumeFromClientY(event.clientY);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleVolumePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.buttons !== 1 && event.pointerType !== "touch") return;
+    event.preventDefault();
+    event.stopPropagation();
+    updateVolumeFromClientY(event.clientY);
+  };
+
+  const handleVolumeTouch = (event: ReactTouchEvent<HTMLDivElement>) => {
+    const touch = event.touches[0];
+    if (!touch) return;
+    event.preventDefault();
+    event.stopPropagation();
+    updateVolumeFromClientY(touch.clientY);
+  };
+
   const toggleFullscreen = async () => {
     const video = videoRef.current as (HTMLVideoElement & {
       webkitEnterFullscreen?: () => void;
@@ -212,10 +251,8 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
     "--range-accent": accent,
     background: `linear-gradient(to right, ${accent} ${volumePercent}%, rgba(255,255,255,.18) ${volumePercent}%)`,
   } as CSSProperties;
-  const volumeVerticalStyle = {
-    "--range-accent": accent,
-    background: `linear-gradient(to right, ${accent} ${volumePercent}%, rgba(255,255,255,.18) ${volumePercent}%)`,
-  } as CSSProperties;
+  const volumeFillStyle = { height: `${volumePercent}%`, background: accent } as CSSProperties;
+  const volumeThumbStyle = { bottom: `${volumePercent}%`, background: accent } as CSSProperties;
   const portalTarget = typeof document === "undefined" ? null : document.body;
   const activeTimelineId = timeline.reduce((activeId, point) => currentTime >= point.time ? point.id : activeId, timeline[0]?.id ?? "");
   const menuContent = (
@@ -420,31 +457,37 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
                 >
                   <span className="font-mono text-[9px] text-white/60">{volumePercent.toLocaleString("fa-IR")}٪</span>
                   <div className="relative flex h-24 w-8 items-center justify-center">
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.05"
-                      value={audibleVolume}
-                      onPointerDown={(event) => {
-                        event.stopPropagation();
-                        event.currentTarget.setPointerCapture?.(event.pointerId);
-                      }}
-                      onTouchStart={(event) => event.stopPropagation()}
-                      onTouchMove={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                      }}
-                      onChange={(event) => {
-                        const nextVolume = Number(event.target.value);
-                        if (videoRef.current) { videoRef.current.volume = nextVolume; videoRef.current.muted = false; }
-                      }}
-                      className="product-video-range w-24 -rotate-90"
-                      style={volumeVerticalStyle}
+                    <div
+                      ref={volumeTrackRef}
+                      role="slider"
+                      tabIndex={0}
                       aria-label="میزان صدا"
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      aria-valuenow={volumePercent}
                       aria-valuetext={`${volumePercent.toLocaleString("fa-IR")} درصد`}
-                      dir="ltr"
-                    />
+                      className="relative flex h-24 w-8 touch-none select-none items-center justify-center rounded-xl outline-none ring-offset-2 ring-offset-black/80 transition focus-visible:ring-2"
+                      style={{ "--tw-ring-color": accent } as CSSProperties}
+                      onPointerDown={handleVolumePointer}
+                      onPointerMove={handleVolumePointerMove}
+                      onTouchStart={handleVolumeTouch}
+                      onTouchMove={handleVolumeTouch}
+                      onKeyDown={(event) => {
+                        if (event.key === "ArrowUp" || event.key === "ArrowRight") {
+                          event.preventDefault();
+                          setVideoVolume(audibleVolume + 0.05);
+                        }
+                        if (event.key === "ArrowDown" || event.key === "ArrowLeft") {
+                          event.preventDefault();
+                          setVideoVolume(audibleVolume - 0.05);
+                        }
+                      }}
+                    >
+                      <span className="relative h-24 w-1 overflow-visible rounded-full bg-white/18">
+                        <span className="absolute inset-x-0 bottom-0 rounded-full" style={volumeFillStyle} />
+                        <span className="absolute left-1/2 size-[13px] -translate-x-1/2 translate-y-1/2 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,.24),0_0_16px_rgba(186,244,81,.45)]" style={volumeThumbStyle} />
+                      </span>
+                    </div>
                   </div>
                 </motion.div>
               )}
