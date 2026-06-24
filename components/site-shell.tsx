@@ -4,10 +4,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   AudioWaveform,
   BookOpen,
-  Camera,
   ChevronDown,
   ChevronLeft,
   CircleHelp,
+  CreditCard,
   GraduationCap,
   Headphones,
   Home,
@@ -16,12 +16,10 @@ import {
   Music2,
   Moon,
   Search,
-  Send,
   ShoppingBag,
   Sparkles,
   Sun,
   Users,
-  Video,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -85,6 +83,24 @@ function Brand() {
   );
 }
 
+function InstagramIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.4" cy="6.6" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function TelegramIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M20.9 4.17c.37-.13.73.19.62.56l-4.15 14.18c-.12.42-.64.56-.96.26l-3.72-3.45-2.03 1.95c-.31.3-.84.08-.84-.35v-2.92l7.58-6.9c.22-.2-.04-.52-.29-.35L7.77 13.3 4.1 12.13c-.46-.15-.5-.78-.06-.99L20.9 4.17Z" />
+    </svg>
+  );
+}
+
 function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => void; onSearch?: () => void; theme?: "light" | "dark"; onTheme?: () => void }) {
   return (
     <div className="flex min-h-full flex-col p-5">
@@ -98,8 +114,18 @@ function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => 
           {theme === "dark" ? "تم روشن" : "تم تیره"}
         </button>
       </div>
-      <div className="mb-3 px-2 text-[11px] font-bold text-[var(--muted)]">دسته‌بندی محصولات</div>
-      <nav className="space-y-1.5">
+
+      <nav className="mb-5 space-y-1.5 lg:hidden">
+        <Link onClick={onNavigate} href="/" className="side-sub-link"><Home className="size-4" /> خانه</Link>
+        <Link onClick={onNavigate} href="/shop" className="side-sub-link"><AudioWaveform className="size-4" /> محصولات</Link>
+        <Link onClick={onNavigate} href="/courses" className="side-sub-link"><GraduationCap className="size-4" /> دوره‌های رایگان</Link>
+        <Link onClick={onNavigate} href="/blog" className="side-sub-link"><BookOpen className="size-4" /> مجله</Link>
+        <Link onClick={onNavigate} href="/consultation" className="side-sub-link"><MessageCircle className="size-4" /> مشاوره</Link>
+        <Link onClick={onNavigate} href="/account" className="side-sub-link"><Users className="size-4" /> پنل کاربری</Link>
+      </nav>
+
+      <div className="mb-3 hidden px-2 text-[11px] font-bold text-[var(--muted)] lg:block">دسته‌بندی محصولات</div>
+      <nav className="hidden space-y-1.5 lg:block">
         {sideItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={label}
@@ -280,10 +306,15 @@ function Header({ onMenu, onSearch, theme, onTheme }: { onMenu: () => void; onSe
           دنبال سمپل، ژانر یا دوره بگرد...
           <span className="mr-auto rounded-lg bg-[var(--soft)] px-2 py-1 font-mono text-[9px]">⌘ K</span>
         </button>
-        <Link href="/cart" className="relative mr-auto grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5 lg:mr-0" aria-label="سبد خرید">
-          <ShoppingBag className="size-5" />
-          {count > 0 && <span className="absolute -left-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--acid)] text-[9px] font-black text-[var(--ink)]">{count}</span>}
-        </Link>
+        <div className="mr-auto flex items-center gap-2 lg:mr-0">
+          <Link href="/account" className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="پنل کاربری">
+            <Users className="size-5" />
+          </Link>
+          <Link href="/cart" className="relative grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="سبد خرید">
+            <ShoppingBag className="size-5" />
+            {count > 0 && <span className="absolute -left-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--acid)] text-[9px] font-black text-[var(--ink)]">{count}</span>}
+          </Link>
+        </div>
         <button onClick={onTheme} className="hidden size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5 lg:grid" aria-label={theme === "dark" ? "فعال‌کردن تم روشن" : "فعال‌کردن تم تیره"} title={theme === "dark" ? "تم روشن" : "تم تیره"}>{theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>
       </div>
     </header>
@@ -297,25 +328,27 @@ function Footer() {
         <div>
           <div className="flex items-center gap-3 text-[var(--acid)]"><AudioWaveform className="size-7" /><strong className="text-xl">موآد استودیو</strong></div>
           <p className="mt-5 max-w-md text-sm leading-8 text-white/55">خانه‌ی صداهای تازه و آموزش‌های بی‌حاشیه برای موزیسین‌هایی که می‌خواهند هر قطعه، یک قدم به امضای شخصی‌شان نزدیک‌تر باشد.</p>
-          <div className="mt-6 flex gap-2"><a href="#" className="social-button" aria-label="اینستاگرام"><Camera /></a><a href="#" className="social-button" aria-label="ویدیوها"><Video /></a><a href="#" className="social-button" aria-label="تلگرام"><Send /></a></div>
-          <a
-            referrerPolicy="origin"
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://trustseal.enamad.ir/?id=740856&Code=dXrKi2eoAQJbPDXYf6sAtX22yl7TGpFN"
-            className="mt-6 inline-flex w-fit items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-2 transition hover:border-[var(--acid)] hover:bg-white/10"
-            aria-label="نماد اعتماد الکترونیکی موآد استودیو"
-          >
-            <Image
-              src="/images/enamad-trust.png"
-              alt="نماد اعتماد الکترونیکی"
-              width={72}
-              height={72}
-              className="h-16 w-16 object-contain"
-              style={{ cursor: "pointer" }}
-            />
-            <span className="hidden text-[10px] font-bold leading-5 text-white/45 sm:block">نماد اعتماد<br />موآد استودیو</span>
-          </a>
+          <div className="mt-6 flex flex-wrap gap-2">
+            <a href="#" className="social-button" aria-label="اینستاگرام"><InstagramIcon className="size-6" /></a>
+            <a href="#" className="social-button" aria-label="تلگرام"><TelegramIcon className="size-6" /></a>
+            <a
+              referrerPolicy="origin"
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://trustseal.enamad.ir/?id=740856&Code=dXrKi2eoAQJbPDXYf6sAtX22yl7TGpFN"
+              className="social-button"
+              aria-label="نماد اعتماد الکترونیکی موآد استودیو"
+            >
+              <Image
+                src="/images/enamad-trust.png"
+                alt="نماد اعتماد الکترونیکی"
+                width={22}
+                height={22}
+                className="footer-trust-mark size-7 object-contain"
+              />
+            </a>
+            <a href="#" className="social-button" aria-label="نماد درگاه پرداخت زیبال"><CreditCard className="size-6" /></a>
+          </div>
           <div className="mt-7 grid grid-cols-4 gap-2 md:hidden">
             <Link href="/shop" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><ShoppingBag className="size-4 text-[var(--acid)]" />محصولات</Link>
             <Link href="/courses" className="grid place-items-center gap-2 rounded-2xl border border-white/10 py-3 text-[9px] text-white/60"><GraduationCap className="size-4 text-[var(--acid)]" />دوره رایگان</Link>

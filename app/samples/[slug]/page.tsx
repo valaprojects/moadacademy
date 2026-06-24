@@ -27,15 +27,22 @@ export default async function SampleDetailPage({ params }: Props) {
   if (!pack) notFound();
 
   return (
-    <div className="page-wrap">
+    <div className="page-wrap pb-24 lg:pb-0">
       <div className="mb-5 mt-7 flex items-center gap-2 text-[10px] text-[var(--muted)]">
         <Link href="/shop">محصولات</Link><ChevronLeft className="size-3" /><span>{pack.title}</span>
       </div>
 
       <Reveal>
-        <section className="grid items-start gap-5 lg:grid-cols-[1.35fr_.65fr] lg:items-stretch">
-          <ProductVideo title={pack.title} accent={pack.accent} />
-          <aside className="glass-card flex flex-col p-6 sm:p-7">
+        <section className="grid items-start gap-4 lg:grid-cols-[1.35fr_.65fr] lg:items-stretch lg:gap-5">
+          <div className="lg:hidden">
+            <div className="mb-3 rounded-[24px] p-4 text-white" style={{ background: `radial-gradient(circle at 18% 20%, ${pack.accent}28, transparent 42%), linear-gradient(145deg, ${pack.color}, #070907)` }}>
+              <span className="text-[9px] text-white/45">مجموعه صدای موآد</span>
+              <h1 className="mt-5 text-2xl font-black leading-9">{pack.title}</h1>
+              <p className="mt-1 text-[10px] text-white/45">{pack.genre} · {pack.bpm}</p>
+            </div>
+          </div>
+          <ProductVideo title={pack.title} accent={pack.accent} hideMobileTitleOverlay />
+          <aside className="glass-card hidden flex-col p-6 sm:p-7 lg:flex">
             <div className="mb-5 min-h-32 rounded-[22px] p-5 text-white" style={{ background: `radial-gradient(circle at 20% 20%, ${pack.accent}28, transparent 40%), linear-gradient(145deg, ${pack.color}, #070907)` }}>
               <span className="text-[9px] text-white/45">مجموعه صدای موآد</span>
               <h2 className="mt-8 text-2xl font-black">{pack.title}</h2>
@@ -53,6 +60,16 @@ export default async function SampleDetailPage({ params }: Props) {
           </aside>
         </section>
       </Reveal>
+
+      <div className="fixed inset-x-3 bottom-3 z-[68] rounded-[24px] border border-black/8 bg-[var(--card)]/92 p-2 shadow-[0_18px_55px_rgba(0,0,0,.2)] backdrop-blur-2xl lg:hidden">
+        <div className="flex items-center gap-3">
+          <div className="min-w-0 flex-1 pr-2">
+            <span className="block text-[9px] font-bold text-[var(--muted)]">قیمت محصول</span>
+            <strong className="mt-0.5 block text-base font-black">{formatPrice(pack.price)}</strong>
+          </div>
+          <AddToCartButton slug={pack.slug} className="h-12 min-w-[160px] flex-1 rounded-[18px]" />
+        </div>
+      </div>
 
       <Reveal className="mt-5">
         <ProductDetailTabs description={pack.description} tags={[...pack.tags]} includes={[...pack.includes]} />

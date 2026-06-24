@@ -42,6 +42,7 @@ type ProductVideoProps = {
   compact?: boolean;
   titleTag?: "h1" | "p";
   showTitleOverlay?: boolean;
+  hideMobileTitleOverlay?: boolean;
 };
 
 function formatTime(value: number) {
@@ -55,7 +56,7 @@ function formatFaTime(value: number) {
   return formatTime(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
-export default function ProductVideo({ title, accent, videos = productVideos, timeline = [], menuLabel = "ویدئوهای محصول", compact = false, titleTag = "h1", showTitleOverlay = true }: ProductVideoProps) {
+export default function ProductVideo({ title, accent, videos = productVideos, timeline = [], menuLabel = "ویدئوهای محصول", compact = false, titleTag = "h1", showTitleOverlay = true, hideMobileTitleOverlay = false }: ProductVideoProps) {
   const playlist = videos.length ? videos : productVideos;
   const [activeVideo, setActiveVideo] = useState<PlayerVideo>(playlist[0]);
   const [playing, setPlaying] = useState(false);
@@ -65,6 +66,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   const [muted, setMuted] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [menuPinned, setMenuPinned] = useState(false);
+  const [volumeOpen, setVolumeOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
@@ -86,12 +88,24 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
       const active = document.fullscreenElement === playerRef.current;
       setIsFullscreen(active);
       if (!active) {
-        const orientation = screen.orientation as ScreenOrientation & { unlock?: () => void };
-        orientation.unlock?.();
+        const orientation = screen.orientation as (ScreenOrientation & { unlock?: () => void }) | undefined;
+        orientation?.unlock?.();
       }
     };
     document.addEventListener("fullscreenchange", syncFullscreen);
     return () => document.removeEventListener("fullscreenchange", syncFullscreen);
+  }, []);
+
+  useEffect(() => {
+    const video = videoRef.current as (HTMLVideoElement & { webkitDisplayingFullscreen?: boolean }) | null;
+    if (!video) return;
+    const syncNativeFullscreen = () => setIsFullscreen(Boolean(video.webkitDisplayingFullscreen));
+    video.addEventListener("webkitbeginfullscreen", syncNativeFullscreen);
+    video.addEventListener("webkitendfullscreen", syncNativeFullscreen);
+    return () => {
+      video.removeEventListener("webkitbeginfullscreen", syncNativeFullscreen);
+      video.removeEventListener("webkitendfullscreen", syncNativeFullscreen);
+    };
   }, []);
 
   const togglePlay = async () => {
@@ -138,15 +152,31 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
     }
   };
 
+  const isMobileViewport = () => window.matchMedia("(max-width: 639px)").matches;
+
+  const lockLandscape = async () => {
+    if (!window.matchMedia("(max-width: 768px)").matches) return;
+    const orientation = screen.orientation as (ScreenOrientation & { lock?: (orientation: "landscape") => Promise<void> }) | undefined;
+    await orientation?.lock?.("landscape").catch(() => undefined);
+  };
+
   const toggleFullscreen = async () => {
+    const video = videoRef.current as (HTMLVideoElement & {
+      webkitEnterFullscreen?: () => void;
+      webkitExitFullscreen?: () => void;
+      webkitDisplayingFullscreen?: boolean;
+    }) | null;
     try {
       if (document.fullscreenElement) {
         await document.exitFullscreen();
+      } else if (video?.webkitDisplayingFullscreen && video.webkitExitFullscreen) {
+        video.webkitExitFullscreen();
       } else if (playerRef.current) {
-        await playerRef.current.requestFullscreen();
-        if (window.matchMedia("(max-width: 768px)").matches) {
-          const orientation = screen.orientation as ScreenOrientation & { lock?: (orientation: "landscape") => Promise<void> };
-          await orientation.lock?.("landscape").catch(() => undefined);
+        if (playerRef.current.requestFullscreen) {
+          await playerRef.current.requestFullscreen();
+          await lockLandscape();
+        } else if (video?.webkitEnterFullscreen) {
+          video.webkitEnterFullscreen();
         }
       }
     } catch {
@@ -162,6 +192,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   const audibleVolume = muted ? 0 : volume;
   const volumePercent = Math.round(audibleVolume * 100);
   const volumeStyle = {
+    "--range-accent": accent,
+    background: `linear-gradient(to right, ${accent} ${volumePercent}%, rgba(255,255,255,.18) ${volumePercent}%)`,
+  } as CSSProperties;
+  const volumeVerticalStyle = {
     "--range-accent": accent,
     background: `linear-gradient(to right, ${accent} ${volumePercent}%, rgba(255,255,255,.18) ${volumePercent}%)`,
   } as CSSProperties;
@@ -188,10 +222,26 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
       />
       <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(6,8,6,.16),rgba(6,8,6,.2)_45%,rgba(6,8,6,.9))]" />
       <div className="hero-grid pointer-events-none absolute inset-0 opacity-15" />
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.button
+            type="button"
+            aria-label="بستن لیست ویدئو"
+            className="fixed inset-0 z-[88] bg-black/35 backdrop-blur-[2px] sm:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => {
+              setMenuOpen(false);
+              setMenuPinned(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
       {(timeline.length > 0 || playlist.length > 1) && <div
         ref={menuRef}
-        className="absolute right-3 top-3 z-30 sm:right-6 sm:top-6"
+        className="absolute right-3 top-3 z-[90] sm:right-6 sm:top-6"
         onMouseEnter={() => setMenuOpen(true)}
         onMouseLeave={() => { if (!menuPinned) setMenuOpen(false); }}
       >
@@ -219,9 +269,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: -5, scale: .985 }}
               transition={{ duration: .18, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute right-0 top-[calc(100%+8px)] max-h-[56dvh] w-[min(92vw,320px)] overflow-y-auto rounded-[22px] border border-white/10 bg-[#10140f]/95 p-2 shadow-[0_24px_70px_rgba(0,0,0,.48)] backdrop-blur-2xl"
+              className="fixed inset-x-3 bottom-3 top-auto z-[95] max-h-[46dvh] w-auto overflow-y-auto rounded-[26px] border border-white/10 bg-[#10140f]/96 p-2 shadow-[0_24px_70px_rgba(0,0,0,.55)] backdrop-blur-2xl sm:absolute sm:inset-auto sm:right-0 sm:top-[calc(100%+8px)] sm:max-h-[56dvh] sm:w-[min(92vw,320px)] sm:rounded-[22px]"
             >
-              <div className="px-2 pb-2 pt-1 text-[9px] font-bold text-white/35">{timeline.length ? "برای پرش، یکی از بخش‌های مهم را انتخاب کن" : "برای پخش، یک ویدئو را انتخاب کن"}</div>
+              <div className="mx-auto mb-1 h-1 w-10 rounded-full bg-white/18 sm:hidden" />
+              <div className="hidden px-2 pb-2 pt-1 text-[9px] font-bold text-white/35 sm:block">{timeline.length ? "برای پرش، یکی از بخش‌های مهم را انتخاب کن" : "برای پخش، یک ویدئو را انتخاب کن"}</div>
               {timeline.length > 0 ? timeline.map((point, index) => {
                 const selected = point.id === activeTimelineId;
                 return (
@@ -230,10 +281,10 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
                     type="button"
                     role="menuitem"
                     onClick={() => selectTimeline(point)}
-                    className={`group/item flex w-full items-center gap-3 rounded-[16px] p-2.5 text-right transition ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
+                    className={`group/item flex w-full items-center gap-2 rounded-[15px] p-1.5 text-right transition sm:gap-3 sm:rounded-[16px] sm:p-2.5 ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
                   >
-                    <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-white/7 font-mono text-[10px]" dir="ltr" style={{ color: selected ? accent : "rgba(255,255,255,.58)" }}>{formatFaTime(point.time)}</span>
-                    <span className="min-w-0 flex-1"><strong className="block text-[11px] font-extrabold text-white">{point.title}</strong><small className="mt-1 block text-[8px] text-white/38">بخش {(index + 1).toLocaleString("fa-IR")} از ویدئو</small></span>
+                    <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/7 font-mono text-[9px] sm:size-11 sm:text-[10px]" dir="ltr" style={{ color: selected ? accent : "rgba(255,255,255,.58)" }}>{formatFaTime(point.time)}</span>
+                    <span className="min-w-0 flex-1"><strong className="block truncate text-[10px] font-extrabold text-white sm:text-[11px]">{point.title}</strong><small className="mt-1 hidden text-[8px] text-white/38 sm:block">بخش {(index + 1).toLocaleString("fa-IR")} از ویدئو</small></span>
                     {selected ? <Check className="size-4 shrink-0" style={{ color: accent }} /> : <Play className="size-3.5 shrink-0 text-white/30" fill="currentColor" />}
                   </button>
                 );
@@ -245,15 +296,15 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
                     type="button"
                     role="menuitem"
                     onClick={() => selectVideo(item)}
-                    className={`group/item flex w-full items-center gap-3 rounded-[16px] p-2.5 text-right transition ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
+                    className={`group/item flex w-full items-center gap-2 rounded-[15px] p-1.5 text-right transition sm:gap-3 sm:rounded-[16px] sm:p-2.5 ${selected ? "bg-white/8" : "hover:bg-white/6"}`}
                   >
-                    <span className="relative grid size-11 shrink-0 place-items-center overflow-hidden rounded-xl bg-white/7">
+                    <span className="relative grid size-9 shrink-0 place-items-center overflow-hidden rounded-xl bg-white/7 sm:size-11">
                       <span className="absolute inset-0 bg-[radial-gradient(circle,rgba(186,244,81,.18),transparent_65%)]" />
                       <Play className="relative size-4" fill="currentColor" style={{ color: selected ? accent : "rgba(255,255,255,.65)" }} />
                     </span>
                     <span className="min-w-0 flex-1">
-                      <strong className="block text-[11px] font-extrabold text-white">{item.title}</strong>
-                      <small className="mt-1 block truncate text-[8px] text-white/38">{item.caption}</small>
+                      <strong className="block truncate text-[10px] font-extrabold text-white sm:text-[11px]">{item.title}</strong>
+                      <small className="mt-1 hidden truncate text-[8px] text-white/38 sm:block">{item.caption}</small>
                     </span>
                     {selected ? <Check className="size-4 shrink-0" style={{ color: accent }} /> : <span className="text-[9px] text-white/25">۰{index + 1}</span>}
                   </button>
@@ -278,11 +329,11 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
       )}
 
       <div className="absolute inset-x-3 bottom-3 z-20 sm:inset-x-6 sm:bottom-6">
-        {showTitleOverlay && <div className="mb-3 px-1">
+        {showTitleOverlay && <div className={`mb-3 px-1 ${hideMobileTitleOverlay ? "max-sm:hidden" : ""}`}>
           <span className="text-[9px] text-white/45">{activeVideo.title}</span>
           {titleTag === "h1" ? <h1 className="mt-1 text-2xl font-black sm:text-4xl">{title}</h1> : <p className="mt-1 text-xl font-black sm:text-3xl">{title}</p>}
         </div>}
-        <div className="flex flex-wrap items-center gap-2 rounded-[18px] border border-white/10 bg-black/55 p-2 shadow-2xl backdrop-blur-xl sm:flex-nowrap sm:gap-3 sm:rounded-[20px] sm:px-3">
+        <div className="flex flex-nowrap items-center gap-1.5 rounded-[18px] border border-white/10 bg-black/60 p-1.5 shadow-2xl backdrop-blur-xl sm:gap-3 sm:rounded-[20px] sm:p-2 sm:px-3">
           <button type="button" onClick={togglePlay} className="grid size-8 shrink-0 place-items-center rounded-xl text-[var(--ink)] transition hover:scale-105 sm:size-9" style={{ background: accent }} aria-label={playing ? "توقف ویدئو" : "پخش ویدئو"}>
             {playing ? <Pause className="size-4" fill="currentColor" /> : <Play className="mr-0.5 size-4" fill="currentColor" />}
           </button>
@@ -297,20 +348,60 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               if (videoRef.current) videoRef.current.currentTime = nextTime;
               setCurrentTime(nextTime);
             }}
-            className="product-video-range min-w-0 flex-1 basis-[calc(100%-96px)] sm:basis-auto"
+            className="product-video-range min-w-0 flex-1 basis-auto"
             style={rangeStyle}
             aria-label="زمان ویدئو"
             dir="ltr"
           />
-          <span className="order-5 min-w-[64px] text-center font-mono text-[9px] text-white/55 sm:order-none" dir="ltr">{formatTime(currentTime)} / {formatTime(duration)}</span>
-          <button
-            type="button"
-            onClick={() => { if (videoRef.current) videoRef.current.muted = !muted; }}
-            className="order-6 grid size-8 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white sm:order-none sm:size-9"
-            aria-label={muted ? "فعال‌کردن صدا" : "بی‌صداکردن"}
-          >
-            {muted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
-          </button>
+          <span className="min-w-[56px] shrink-0 text-center font-mono text-[8px] text-white/55 sm:min-w-[64px] sm:text-[9px]" dir="ltr">{formatTime(currentTime)} / {formatTime(duration)}</span>
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => {
+                if (isMobileViewport()) {
+                  setVolumeOpen((open) => !open);
+                } else if (videoRef.current) {
+                  videoRef.current.muted = !muted;
+                }
+              }}
+              className="grid size-8 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white sm:size-9"
+              aria-label={muted ? "فعال‌کردن صدا" : "بی‌صداکردن"}
+              aria-expanded={volumeOpen}
+            >
+              {muted || volume === 0 ? <VolumeX className="size-4" /> : <Volume2 className="size-4" />}
+            </button>
+            <AnimatePresence>
+              {volumeOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: .96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 6, scale: .96 }}
+                  transition={{ duration: .18, ease: [0.22, 1, 0.36, 1] }}
+                  className="absolute bottom-11 left-1/2 z-30 flex h-36 w-14 -translate-x-1/2 flex-col items-center justify-center gap-2 rounded-2xl border border-white/10 bg-black/80 p-2 shadow-2xl backdrop-blur-xl sm:hidden"
+                >
+                  <span className="font-mono text-[9px] text-white/60">{volumePercent.toLocaleString("fa-IR")}٪</span>
+                  <div className="relative flex h-24 w-8 items-center justify-center">
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.05"
+                      value={audibleVolume}
+                      onChange={(event) => {
+                        const nextVolume = Number(event.target.value);
+                        if (videoRef.current) { videoRef.current.volume = nextVolume; videoRef.current.muted = false; }
+                      }}
+                      className="product-video-range w-24 -rotate-90"
+                      style={volumeVerticalStyle}
+                      aria-label="میزان صدا"
+                      aria-valuetext={`${volumePercent.toLocaleString("fa-IR")} درصد`}
+                      dir="ltr"
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
           <input
             type="range"
             min="0"
@@ -321,13 +412,13 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
               const nextVolume = Number(event.target.value);
               if (videoRef.current) { videoRef.current.volume = nextVolume; videoRef.current.muted = false; }
             }}
-            className="product-video-range order-7 w-24 flex-1 sm:order-none sm:w-20 sm:flex-none"
+            className="product-video-range order-7 hidden w-24 flex-1 sm:order-none sm:block sm:w-20 sm:flex-none"
             style={volumeStyle}
             aria-label="میزان صدا"
             aria-valuetext={`${volumePercent.toLocaleString("fa-IR")} درصد`}
             dir="ltr"
           />
-          <span className="order-8 min-w-8 text-center font-mono text-[9px] text-white/55 sm:order-none" dir="rtl">{volumePercent.toLocaleString("fa-IR")}٪</span>
+          <span className="order-8 hidden min-w-8 text-center font-mono text-[9px] text-white/55 sm:order-none sm:block" dir="rtl">{volumePercent.toLocaleString("fa-IR")}٪</span>
           <button type="button" onClick={toggleFullscreen} className="grid size-8 shrink-0 place-items-center rounded-xl text-white/65 transition hover:bg-white/8 hover:text-white sm:size-9" aria-label={isFullscreen ? "کوچک‌کردن ویدئو" : "نمایش تمام‌صفحه"}>
             {isFullscreen ? <Minimize2 className="size-4" /> : <Maximize2 className="size-4" />}
           </button>
