@@ -29,7 +29,7 @@ export default async function CourseChapterPage({ params }: Props) {
   if (!course || !chapter) notFound();
 
   return (
-    <div className="page-wrap pb-28 lg:pb-16">
+    <div className="page-wrap pb-8 lg:pb-16">
       <nav className="mb-5 mt-7 flex flex-wrap items-center gap-2 text-[10px] text-[var(--muted)]" aria-label="مسیر صفحه">
         <Link href="/courses">دوره‌های رایگان</Link><ChevronLeft className="size-3" /><Link href={`/courses/${course.slug}`}>{course.title}</Link><ChevronLeft className="size-3" /><span>{chapter.title}</span>
       </nav>

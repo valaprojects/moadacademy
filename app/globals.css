@@ -64,7 +64,7 @@ a { text-decoration: none; }
 
 @layer components {
   .page-wrap { @apply mx-auto w-full max-w-[1500px] px-4 sm:px-7; }
-  .section-space { @apply mt-20 sm:mt-28; }
+  .section-space { @apply mt-16 sm:mt-20; }
   .eyebrow { @apply mb-4 inline-flex items-center gap-2 rounded-full border border-black/7 px-3 py-2 text-[10px] font-extrabold text-[#58742f] shadow-sm; background-color: var(--card); }
   .primary-button { @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-5 text-xs font-extrabold text-white transition hover:-translate-y-0.5 hover:bg-[var(--forest)]; }
   .secondary-button { @apply inline-flex h-12 items-center justify-center gap-2 rounded-2xl border border-black/8 px-5 text-xs font-extrabold text-[var(--foreground)] transition hover:-translate-y-0.5 hover:border-black/15; background-color: var(--card); }
@@ -176,7 +176,7 @@ button[aria-label="افزودن به سبد"]:has(.lucide-check) {
     padding-inline: .75rem;
   }
   .section-space {
-    margin-top: 3.5rem;
+    margin-top: 2.75rem;
   }
   .eyebrow {
     margin-bottom: .75rem;

@@ -33,15 +33,15 @@ export default async function CoursesPage({ searchParams }: Props) {
         text="مسیرهای کوتاه و پروژه‌محور برای اینکه بدون هزینه یادگیری را شروع کنی و همان روز نتیجه‌اش را در موسیقی خودت بشنوی."
       />
 
-      <section className="mt-8 rounded-[28px] border border-black/6 bg-[var(--card)] p-4 sm:p-5" aria-label="دسته‌بندی دوره‌های رایگان">
+      <section className="mt-6 rounded-[26px] border border-black/6 bg-[var(--card)] p-3 sm:mt-8 sm:rounded-[28px] sm:p-5" aria-label="دسته‌بندی دوره‌های رایگان">
         <div className="mb-4 flex items-center gap-3"><span className="grid size-10 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><FolderTree className="size-4" /></span><div><span className="text-[9px] font-bold text-[#679139]">دسته‌بندی آموزش‌ها</span><h2 className="text-sm font-black">موضوعی که می‌خواهی یاد بگیری را انتخاب کن</h2></div></div>
-        <div className="flex flex-wrap gap-2">
-          <Link href="/courses" aria-current={!activeCategory ? "page" : undefined} className={`rounded-full px-4 py-2.5 text-[10px] font-extrabold transition ${!activeCategory ? "bg-[var(--acid)] text-[var(--ink)] shadow-[0_0_20px_rgba(186,244,81,.2)]" : "bg-[var(--soft)] text-[var(--muted)] hover:text-[var(--foreground)]"}`}>همه دوره‌ها <span className="mr-1 opacity-60">{freeCourses.length.toLocaleString("fa-IR")}</span></Link>
-          {courseCategories.map((item) => { const count = freeCourses.filter((course) => course.category === item.id).length; return <Link key={item.id} href={`/courses?category=${item.id}`} aria-current={activeCategory?.id === item.id ? "page" : undefined} className={`rounded-full px-4 py-2.5 text-[10px] font-extrabold transition ${activeCategory?.id === item.id ? "bg-[var(--acid)] text-[var(--ink)] shadow-[0_0_20px_rgba(186,244,81,.2)]" : "bg-[var(--soft)] text-[var(--muted)] hover:text-[var(--foreground)]"}`}>{item.title} <span className="mr-1 opacity-60">{count.toLocaleString("fa-IR")}</span></Link>; })}
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+          <Link href="/courses" aria-current={!activeCategory ? "page" : undefined} className={`flex min-h-14 items-center justify-center rounded-2xl px-3 py-2 text-center text-[10px] font-extrabold leading-5 transition sm:min-h-0 sm:rounded-full sm:px-4 sm:py-2.5 ${!activeCategory ? "bg-[var(--acid)] text-[var(--ink)] shadow-[0_0_20px_rgba(186,244,81,.2)]" : "bg-[var(--soft)] text-[var(--muted)] hover:text-[var(--foreground)]"}`}>همه دوره‌ها <span className="mr-1 opacity-60">{freeCourses.length.toLocaleString("fa-IR")}</span></Link>
+          {courseCategories.map((item) => { const count = freeCourses.filter((course) => course.category === item.id).length; return <Link key={item.id} href={`/courses?category=${item.id}`} aria-current={activeCategory?.id === item.id ? "page" : undefined} className={`flex min-h-14 items-center justify-center rounded-2xl px-3 py-2 text-center text-[10px] font-extrabold leading-5 transition sm:min-h-0 sm:rounded-full sm:px-4 sm:py-2.5 ${activeCategory?.id === item.id ? "bg-[var(--acid)] text-[var(--ink)] shadow-[0_0_20px_rgba(186,244,81,.2)]" : "bg-[var(--soft)] text-[var(--muted)] hover:text-[var(--foreground)]"}`}>{item.title} <span className="mr-1 opacity-60">{count.toLocaleString("fa-IR")}</span></Link>; })}
         </div>
       </section>
 
-      <section className="section-space mt-14">
+      <section className="section-space">
         <SectionTitle
           eyebrow="شروع یادگیری"
           title="یک دوره را انتخاب کن و مستقیم وارد ساختن شو."

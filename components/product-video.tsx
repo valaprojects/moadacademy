@@ -57,7 +57,7 @@ function formatFaTime(value: number) {
   return formatTime(value).replace(/\d/g, (digit) => "۰۱۲۳۴۵۶۷۸۹"[Number(digit)]);
 }
 
-export default function ProductVideo({ title, accent, videos = productVideos, timeline = [], menuLabel = "ویدئوهای محصول", compact = false, titleTag = "h1", showTitleOverlay = true, hideMobileTitleOverlay = false }: ProductVideoProps) {
+export default function ProductVideo({ title, accent, videos = productVideos, timeline = [], menuLabel = "ویدئوهای محصول", compact = false, titleTag = "h1", showTitleOverlay = false, hideMobileTitleOverlay = false }: ProductVideoProps) {
   const playlist = videos.length ? videos : productVideos;
   const [activeVideo, setActiveVideo] = useState<PlayerVideo>(playlist[0]);
   const [playing, setPlaying] = useState(false);
@@ -300,7 +300,7 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
   );
 
   return (
-    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-[100dvh] rounded-none" : `${compact ? "h-[220px] sm:aspect-video sm:h-auto sm:min-h-0" : "h-[330px] sm:h-[390px] lg:h-[560px]"} rounded-[26px] sm:rounded-[32px]`}`}>
+    <div ref={playerRef} className={`group relative min-w-0 overflow-hidden bg-[var(--ink)] text-white ${isFullscreen ? "h-[100dvh] rounded-none" : `${compact ? "h-[220px] sm:aspect-video sm:h-auto sm:min-h-0" : "h-[220px] sm:aspect-video sm:h-auto sm:min-h-0"} rounded-[26px] sm:rounded-[32px]`}`}>
       <video
         ref={videoRef}
         src={activeVideo.src}
@@ -390,11 +390,11 @@ export default function ProductVideo({ title, accent, videos = productVideos, ti
           type="button"
           whileTap={{ scale: .92 }}
           onClick={togglePlay}
-          className="absolute left-1/2 top-1/2 z-10 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full text-[var(--ink)] shadow-[0_0_55px_rgba(186,244,81,.25)] transition hover:scale-105 sm:size-20"
+          className="absolute left-1/2 top-1/2 z-10 grid size-12 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-[18px] text-[var(--ink)] shadow-[0_0_45px_rgba(186,244,81,.22)] transition hover:scale-105 sm:size-14 sm:rounded-[20px]"
           style={{ background: accent }}
           aria-label="پخش ویدئو"
         >
-          <Play className="mr-1 size-6 sm:size-7" fill="currentColor" />
+          <Play className="mr-0.5 size-5 sm:size-6" fill="currentColor" />
         </motion.button>
       )}
 
