@@ -1,4 +1,6 @@
-FROM node:22-bookworm-slim AS base
+ARG NODE_IMAGE=public.ecr.aws/docker/library/node:22-bookworm-slim
+
+FROM ${NODE_IMAGE} AS base
 
 WORKDIR /app
 
@@ -20,7 +22,7 @@ FROM base AS production-deps
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 
-FROM node:22-bookworm-slim AS runner
+FROM base AS runner
 
 WORKDIR /app
 
