@@ -6,6 +6,8 @@ import ProductCarousel from "@/components/product-carousel";
 import { ArticleCards, CategoryGrid, Newsletter, SectionTitle } from "@/components/ui";
 import { courses, samplePacks } from "@/lib/data";
 
+const keywordMarqueeItems = ["صداهای اورجینال", "ساخته‌شده برای خلاقیت", "مجوز استفاده تجاری", "کیفیت حرفه‌ای"];
+
 export default function Home() {
   return (
     <div className="page-wrap">
@@ -24,7 +26,20 @@ export default function Home() {
         </section>
       </HeroMotion>
 
-      <div className="overflow-hidden py-7 text-[10px] font-black text-[var(--muted)]"><div className="marquee-track flex w-max gap-10"><span>صداهای اورجینال</span><span className="text-[#82a542]">✦</span><span>ساخته‌شده برای خلاقیت</span><span className="text-[#82a542]">✦</span><span>مجوز استفاده تجاری</span><span className="text-[#82a542]">✦</span><span>کیفیت حرفه‌ای</span><span className="text-[#82a542]">✦</span><span>صداهای اورجینال</span><span className="text-[#82a542]">✦</span><span>ساخته‌شده برای خلاقیت</span></div></div>
+      <div className="relative overflow-hidden py-7 text-[10px] font-black text-[var(--muted)]" dir="ltr">
+        <div className="marquee-track flex w-max items-center">
+          {[0, 1].map((group) => (
+            <div key={group} className="marquee-group flex min-w-max items-center gap-10 px-5" aria-hidden={group === 1}>
+              {Array.from({ length: 4 }).flatMap(() => keywordMarqueeItems).map((item, index) => (
+                <span key={`${group}-${index}`} className="flex items-center gap-10 whitespace-nowrap">
+                  <span dir="rtl">{item}</span>
+                  <span className="text-[#82a542]">✦</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
 
       <section className="section-space mt-14">
         <SectionTitle eyebrow="انتخاب این هفته" title="صداهایی که منتظر ایده‌ی تو هستند." text="هر پک با دقت انتخاب، ضبط و پردازش شده تا به‌جای وقت‌گرفتن، مسیر خلاقیت را کوتاه‌تر کند." href="/shop" />

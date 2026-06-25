@@ -145,8 +145,17 @@ html[data-theme="dark"] .accent-surface {
   color: #0d120b;
 }
 html[data-theme="dark"] ::selection { background: var(--acid); color: var(--ink); }
-.marquee-track { animation: marquee 24s linear infinite; }
-@keyframes marquee { to { transform: translateX(50%); } }
+.marquee-track {
+  animation: marquee 52s linear infinite;
+  will-change: transform;
+}
+.marquee-group {
+  flex: 0 0 auto;
+}
+@keyframes marquee {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
 .neon-hover {
   transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease;
 }

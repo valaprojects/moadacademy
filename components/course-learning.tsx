@@ -1,7 +1,8 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Clock3, FolderTree, ListVideo, Navigation, Play } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, ChevronDown, Clock3, Download, FolderTree, ListVideo, Play } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 import { defaultVideoTimeline, getCourseCategory, getCourseLessonHref, type Course } from "@/lib/data";
 import MobileSheetDock from "./mobile-sheet";
 import ProductVideo from "./product-video";
@@ -25,13 +26,29 @@ export default function CourseLearning({ course, activeChapterId, activeLessonId
 
   const pageTitle = activeLesson?.title ?? activeChapter?.title ?? course.title;
   const pageDescription = activeLesson?.description ?? activeChapter?.description ?? course.description;
-  const courseSections = [
-    { id: "course-overview", title: activeLesson ? "معرفی این قسمت" : activeChapter ? "معرفی فصل" : "معرفی دوره" },
-    ...(activeLesson ? [{ id: "course-video", title: "ویدئوی آموزشی" }, { id: "course-description", title: "توضیحات نوشتاری" }] : []),
-    ...(activeChapter ? [{ id: "course-lessons", title: "قسمت‌های این فصل" }] : [{ id: "course-start", title: "شروع دوره" }, { id: "course-map", title: "نقشه دوره" }]),
+  const [openDownloadGroup, setOpenDownloadGroup] = useState("practice");
+  const downloadGroups = [
+    {
+      id: "practice",
+      title: "فایل‌های تمرین دوره",
+      caption: "پروژه، MIDI و فایل‌های همراه جلسه‌ها",
+      items: [
+        { title: "پروژه تمرینی دوره", size: "۱۸ مگابایت", href: `/downloads/${course.slug}/practice-project.zip` },
+        { title: "MIDI و لوپ‌های تمرین", size: "۱۲ مگابایت", href: `/downloads/${course.slug}/midi-loops.zip` },
+      ],
+    },
+    {
+      id: "tools",
+      title: "ابزارها و فایل‌های رایگان",
+      caption: "محل قرارگیری VST، سمپل یا منابع حجیم",
+      items: [
+        { title: "لیست ابزارهای پیشنهادی", size: "PDF", href: `/downloads/${course.slug}/tools-list.pdf` },
+        { title: "فایل‌های حجیم/وی‌اس‌تی‌ها", size: "لینک خارجی", href: `/downloads/${course.slug}/free-tools.txt` },
+      ],
+    },
   ];
 
-  const courseSectionsCard = (
+  const downloadCard = (
     <section className="rounded-[24px] border border-black/6 bg-[var(--card)] p-3 shadow-[0_18px_55px_rgba(17,22,14,.06)] sm:rounded-[28px] sm:p-4">
       <Link href={`/courses/${course.slug}`} className="group mb-3 block rounded-[22px] bg-[var(--ink)] p-4 text-white transition hover:-translate-y-0.5">
         <div className="flex items-center gap-3">
@@ -40,12 +57,28 @@ export default function CourseLearning({ course, activeChapterId, activeLessonId
         </div>
       </Link>
       <div className="mb-3 flex items-center gap-2 px-1">
-        <span className="grid size-9 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><Navigation className="size-4" /></span>
-        <div><span className="block text-[9px] font-bold text-[#6c9538]">پیمایش مطلب</span><h2 className="text-sm font-black">رفتن به سرتیترها</h2></div>
+        <span className="grid size-9 place-items-center rounded-2xl bg-[var(--soft)] text-[#668d34]"><Download className="size-4" /></span>
+        <div><span className="block text-[9px] font-bold text-[#6c9538]">دانلودهای رایگان</span><h2 className="text-sm font-black">فایل‌های همراه دوره</h2></div>
       </div>
-      <nav className="space-y-1.5" aria-label="پیمایش سرتیترهای دوره">
-        {courseSections.map((item) => <a key={item.id} href={`#${item.id}`} className="flex items-center justify-between rounded-2xl bg-[var(--soft)] px-3 py-2.5 text-[10px] font-bold text-[var(--muted)] transition hover:bg-[var(--acid)] hover:text-[var(--ink)]"><span>{item.title}</span><ArrowLeft className="size-3" /></a>)}
-      </nav>
+      <div className="space-y-2">
+        {downloadGroups.map((group) => {
+          const open = openDownloadGroup === group.id;
+          return (
+            <div key={group.id} className="overflow-hidden rounded-2xl bg-[var(--soft)]">
+              <button type="button" onClick={() => setOpenDownloadGroup(open ? "" : group.id)} aria-expanded={open} className="flex w-full items-center gap-3 px-3 py-3 text-right">
+                <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-[var(--card)] text-[#668d34]"><Download className="size-3.5" /></span>
+                <span className="min-w-0 flex-1"><strong className="block text-[10px]">{group.title}</strong><small className="mt-1 block truncate text-[8px] text-[var(--muted)]">{group.caption}</small></span>
+                <ChevronDown className={`size-4 shrink-0 text-[var(--muted)] transition-transform ${open ? "rotate-180" : ""}`} />
+              </button>
+              {open && (
+                <div className="space-y-1.5 border-t border-black/5 p-2">
+                  {group.items.map((item) => <a key={item.title} href={item.href} download className="flex items-center justify-between gap-3 rounded-xl bg-[var(--card)] px-3 py-2.5 text-[9px] font-bold transition hover:bg-[var(--acid)] hover:text-[var(--ink)]"><span className="truncate">{item.title}</span><span className="shrink-0 text-[8px] opacity-60">{item.size}</span></a>)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 
@@ -72,13 +105,13 @@ export default function CourseLearning({ course, activeChapterId, activeLessonId
   return (
     <div className="grid items-start gap-4 pb-20 lg:grid-cols-[310px_minmax(0,1fr)] lg:gap-5 lg:pb-0">
       <aside className="hidden space-y-4 lg:sticky lg:top-24 lg:block">
-        {courseSectionsCard}
+        {downloadCard}
         {chaptersCard}
       </aside>
       <MobileSheetDock
         items={[
           { id: "chapters", label: "سرفصل‌ها", title: "فصل‌ها و قسمت‌ها", icon: ListVideo, content: chaptersCard },
-          { id: "info", label: "پیمایش", title: "پیمایش سرتیترها", icon: Navigation, content: courseSectionsCard },
+          { id: "downloads", label: "دانلودها", title: "دانلودهای رایگان", icon: Download, content: downloadCard },
         ]}
       />
 

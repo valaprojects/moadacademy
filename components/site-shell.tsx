@@ -103,7 +103,7 @@ function TelegramIcon({ className = "size-5" }: { className?: string }) {
 
 function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => void; onSearch?: () => void; theme?: "light" | "dark"; onTheme?: () => void }) {
   return (
-    <div className="flex min-h-full flex-col py-3.5 pr-3.5 lg:p-5">
+    <div className="flex min-h-full flex-col py-3.5 pr-3.5 lg:h-full lg:p-5">
       <div className="mb-4 pr-1 lg:mb-8"><Brand /></div>
       <div className="mb-4 grid grid-cols-[minmax(0,1fr)_2.75rem] gap-2 lg:hidden">
         <button onClick={onSearch} className="flex h-11 items-center justify-center gap-2 rounded-2xl border border-black/7 bg-[var(--soft)] text-[11px] font-extrabold text-[var(--foreground)]">
@@ -120,7 +120,7 @@ function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => 
         <Link onClick={onNavigate} href="/courses" className="side-sub-link"><GraduationCap className="size-4" /> دوره‌های رایگان</Link>
         <Link onClick={onNavigate} href="/blog" className="side-sub-link"><BookOpen className="size-4" /> مجله</Link>
         <Link onClick={onNavigate} href="/consultation" className="side-sub-link"><MessageCircle className="size-4" /> مشاوره</Link>
-        <Link onClick={onNavigate} href="/account" className="side-sub-link"><Users className="size-4" /> پنل کاربری</Link>
+        <Link onClick={onNavigate} href="/login" className="side-sub-link"><Users className="size-4" /> ورود / ثبت‌نام</Link>
       </nav>
 
       <div className="mb-3 hidden px-2 text-[11px] font-bold text-[var(--muted)] lg:block">دسته‌بندی محصولات</div>
@@ -143,7 +143,8 @@ function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => 
         ))}
       </nav>
 
-      <div className="mb-3 mt-auto h-px bg-black/6 lg:my-5" />
+      <div className="mt-auto">
+      <div className="mb-3 h-px bg-black/6 lg:my-5" />
       <nav className="space-y-1 text-[13px] font-semibold text-[var(--muted)]">
         <Link onClick={onNavigate} href="/about" className="side-sub-link"><Users className="size-4" /> درباره ما</Link>
         <Link onClick={onNavigate} href="/contact" className="side-sub-link"><MessageCircle className="size-4" /> تماس با ما</Link>
@@ -160,6 +161,7 @@ function Sidebar({ onNavigate, onSearch, theme, onTheme }: { onNavigate?: () => 
           مشاوره انتخاب مسیر <ChevronLeft className="size-4 transition-transform group-hover:-translate-x-1" />
         </span>
       </Link>
+      </div>
     </div>
   );
 }
@@ -310,8 +312,12 @@ function Header({ onMenu, onSearch, theme, onTheme }: { onMenu: () => void; onSe
             <ShoppingBag className="size-5" />
             {count > 0 && <span className="absolute -left-1 -top-1 grid size-5 place-items-center rounded-full bg-[var(--acid)] text-[9px] font-black text-[var(--ink)]">{count}</span>}
           </Link>
-          <Link href="/account" className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5" aria-label="پنل کاربری">
+          <Link href="/login" className="grid size-11 place-items-center rounded-2xl border border-black/8 bg-white transition active:scale-95 lg:hidden" aria-label="ورود و ثبت‌نام" title="ورود / ثبت‌نام">
             <Users className="size-5" />
+          </Link>
+          <Link href="/login" className="hidden h-11 items-center justify-center gap-2 rounded-2xl border border-black/8 bg-white px-4 text-[11px] font-black text-[var(--foreground)] transition hover:-translate-y-0.5 hover:border-[#8dbb49]/35 hover:bg-[var(--soft)] lg:inline-flex" aria-label="ورود و ثبت‌نام">
+            <Users className="size-4" />
+            ورود / ثبت‌نام
           </Link>
         </div>
         <button onClick={onTheme} className="hidden size-11 place-items-center rounded-2xl border border-black/8 bg-white transition hover:-translate-y-0.5 lg:grid" aria-label={theme === "dark" ? "فعال‌کردن تم روشن" : "فعال‌کردن تم تیره"} title={theme === "dark" ? "تم روشن" : "تم تیره"}>{theme === "dark" ? <Sun className="size-5" /> : <Moon className="size-5" />}</button>
