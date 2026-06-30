@@ -370,6 +370,7 @@ function Footer() {
 }
 
 export default function SiteShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [items, setItems] = useState<CartLine[]>([]);
   const [drawer, setDrawer] = useState(false);
   const [search, setSearch] = useState(false);
@@ -412,6 +413,9 @@ export default function SiteShell({ children }: { children: ReactNode }) {
   };
 
   return (
+    pathname?.startsWith("/admin") ? (
+      <>{children}</>
+    ) : (
     <ShopContext.Provider value={value}>
       <div className="min-h-screen lg:pr-[286px]">
         <aside className="fixed inset-y-3 right-3 z-50 hidden w-[266px] overflow-hidden rounded-[30px] border border-black/6 bg-white shadow-[0_20px_70px_rgba(18,24,15,.08)] lg:block"><Sidebar /></aside>
@@ -424,5 +428,6 @@ export default function SiteShell({ children }: { children: ReactNode }) {
       </AnimatePresence>
       <SearchDialog open={search} close={() => setSearch(false)} />
     </ShopContext.Provider>
+    )
   );
 }
