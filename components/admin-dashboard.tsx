@@ -1825,7 +1825,7 @@ function ProductsPanel() {
             {productEditorBlocks.map((block) => {
               const Icon = block.icon;
               return (
-                <button key={block.title} type="button" onClick={() => openProductModal(block.title, block.text, Icon, [{ label: "محصول", value: selected.title }, { label: "نوع", value: selected.type }, { label: "قیمت", value: selected.price }])} className="rounded-[22px] border border-[var(--admin-border)] bg-[var(--admin-panel-2)] p-4 text-right transition hover:-translate-y-0.5 hover:border-[var(--admin-accent)]">
+                <button key={block.title} type="button" onClick={() => openProductModal(block.title, block.text, Icon, [{ label: "محصول", value: selected.title }, { label: "دسته", value: selected.category }, { label: "قیمت", value: selected.price }])} className="rounded-[22px] border border-[var(--admin-border)] bg-[var(--admin-panel-2)] p-4 text-right transition hover:-translate-y-0.5 hover:border-[var(--admin-accent)]">
                   <Icon className="mb-4 size-5 text-[var(--admin-accent)]" />
                   <strong className="block text-xs font-black text-[var(--admin-ink)]">{block.title}</strong>
                   <span className="mt-2 block text-[10px] font-bold leading-5 text-[var(--admin-muted)]">{block.text}</span>
@@ -1836,7 +1836,7 @@ function ProductsPanel() {
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <PrimaryButton icon={Save} onClick={() => openProductModal(`ذخیره «${selected.title}»`, "تنظیمات فروش، فایل، دمو، قیمت، کمپین و تب‌های محصول ذخیره شد.", Save, [{ label: "قیمت", value: selected.price }, { label: "فایل", value: selected.files.length.toLocaleString("fa-IR") }, { label: "سئو", value: `${selected.seo.toLocaleString("fa-IR")}٪` }])}>ذخیره</PrimaryButton>
             <GhostButton icon={Tags} onClick={() => openProductModal("کمپین محصول", `کمپین تخفیف و پیشنهاد نزدیک برای «${selected.title}» آماده تنظیم است.`, Tags, [{ label: "محصول", value: selected.title }, { label: "درآمد", value: selected.revenue }, { label: "دسته", value: selected.category }])}>کمپین</GhostButton>
-            <GhostButton icon={ShieldCheck} onClick={() => openProductModal("وضعیت انتشار محصول", "وضعیت انتشار، موجودی فایل و آماده بودن صفحه محصول بررسی می‌شود.", ShieldCheck, [{ label: "وضعیت", value: selected.status }, { label: "نوع", value: selected.type }, { label: "مسیر", value: selected.href }])}>وضعیت</GhostButton>
+            <GhostButton icon={ShieldCheck} onClick={() => openProductModal("وضعیت انتشار محصول", "وضعیت انتشار، موجودی فایل و آماده بودن صفحه محصول بررسی می‌شود.", ShieldCheck, [{ label: "وضعیت", value: selected.status }, { label: "دسته", value: selected.category }, { label: "مسیر", value: selected.href }])}>وضعیت</GhostButton>
           </div>
         </Surface>
       </div>
@@ -1872,7 +1872,7 @@ function ProductsPanel() {
             ))}
           </div>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <button type="button" onClick={() => openProductModal("افزودن فایل دانلودی", "یک فایل جدید با عنوان، حجم، نسخه، نوع دسترسی و لینک امن به محصول اضافه می‌شود.", Upload, [{ label: "محصول", value: selected.title }, { label: "نوع", value: selected.type }, { label: "امنیت", value: "دانلود محافظت‌شده" }])} className="inline-flex min-h-20 items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel-2)] px-4 py-5 text-xs font-black text-[var(--admin-muted)] transition hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]">
+            <button type="button" onClick={() => openProductModal("افزودن فایل دانلودی", "یک فایل جدید با عنوان، حجم، نسخه، نوع دسترسی و لینک امن به محصول اضافه می‌شود.", Upload, [{ label: "محصول", value: selected.title }, { label: "دسته", value: selected.category }, { label: "امنیت", value: "دانلود محافظت‌شده" }])} className="inline-flex min-h-20 items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel-2)] px-4 py-5 text-xs font-black text-[var(--admin-muted)] transition hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]">
               <Upload className="size-4 text-[var(--admin-accent)]" /> فایل دانلودی
             </button>
             <button type="button" onClick={() => openProductModal("نسخه جدید محصول", "برای محصول یک نسخه جدید با یادداشت تغییرات، فایل تازه و وضعیت انتشار ساخته می‌شود.", Layers3, [{ label: "محصول", value: selected.title }, { label: "نسخه", value: "جدید" }, { label: "وضعیت", value: "پیش‌نویس" }])} className="inline-flex min-h-20 items-center justify-center gap-2 rounded-2xl border border-dashed border-[var(--admin-border)] bg-[var(--admin-panel-2)] px-4 py-5 text-xs font-black text-[var(--admin-muted)] transition hover:border-[var(--admin-accent)] hover:text-[var(--admin-accent)]">
